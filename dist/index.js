@@ -1,14 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 124:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = require(__nccwpck_require__.ab + "lib/protocol/crypto/build/Release/sshcrypto.node")
-
-/***/ }),
-
-/***/ 9165:
+/***/ 8466:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -35,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
 const os = __importStar(__nccwpck_require__(2037));
-const utils_1 = __nccwpck_require__(798);
+const utils_1 = __nccwpck_require__(6856);
 /**
  * Commands
  *
@@ -107,7 +100,7 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 8864:
+/***/ 8020:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -142,12 +135,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(9165);
-const file_command_1 = __nccwpck_require__(6526);
-const utils_1 = __nccwpck_require__(798);
+const command_1 = __nccwpck_require__(8466);
+const file_command_1 = __nccwpck_require__(298);
+const utils_1 = __nccwpck_require__(6856);
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const oidc_utils_1 = __nccwpck_require__(5912);
+const uuid_1 = __nccwpck_require__(4477);
+const oidc_utils_1 = __nccwpck_require__(4252);
 /**
  * The code to exit an action
  */
@@ -176,7 +170,14 @@ function exportVariable(name, val) {
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const delimiter = `ghadelimiter_${uuid_1.v4()}`;
+        // These should realistically never happen, but just in case someone finds a way to exploit uuid generation let's not allow keys or values that contain the delimiter.
+        if (name.includes(delimiter)) {
+            throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+        }
+        if (convertedVal.includes(delimiter)) {
+            throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+        }
         const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
         file_command_1.issueCommand('ENV', commandValue);
     }
@@ -422,11 +423,28 @@ function getIDToken(aud) {
     });
 }
 exports.getIDToken = getIDToken;
+/**
+ * Summary exports
+ */
+var summary_1 = __nccwpck_require__(2844);
+Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
+/**
+ * @deprecated use core.summary
+ */
+var summary_2 = __nccwpck_require__(2844);
+Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
+/**
+ * Path exports
+ */
+var path_utils_1 = __nccwpck_require__(9268);
+Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
+Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
+Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
 
-/***/ 6526:
+/***/ 298:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -457,7 +475,7 @@ exports.issueCommand = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
-const utils_1 = __nccwpck_require__(798);
+const utils_1 = __nccwpck_require__(6856);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -475,7 +493,7 @@ exports.issueCommand = issueCommand;
 
 /***/ }),
 
-/***/ 5912:
+/***/ 4252:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -491,9 +509,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(9740);
-const auth_1 = __nccwpck_require__(2321);
-const core_1 = __nccwpck_require__(8864);
+const http_client_1 = __nccwpck_require__(3329);
+const auth_1 = __nccwpck_require__(3694);
+const core_1 = __nccwpck_require__(8020);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
         const requestOptions = {
@@ -559,7 +577,362 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 798:
+/***/ 9268:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
+const path = __importStar(__nccwpck_require__(1017));
+/**
+ * toPosixPath converts the given path to the posix form. On Windows, \\ will be
+ * replaced with /.
+ *
+ * @param pth. Path to transform.
+ * @return string Posix path.
+ */
+function toPosixPath(pth) {
+    return pth.replace(/[\\]/g, '/');
+}
+exports.toPosixPath = toPosixPath;
+/**
+ * toWin32Path converts the given path to the win32 form. On Linux, / will be
+ * replaced with \\.
+ *
+ * @param pth. Path to transform.
+ * @return string Win32 path.
+ */
+function toWin32Path(pth) {
+    return pth.replace(/[/]/g, '\\');
+}
+exports.toWin32Path = toWin32Path;
+/**
+ * toPlatformPath converts the given path to a platform-specific path. It does
+ * this by replacing instances of / and \ with the platform-specific path
+ * separator.
+ *
+ * @param pth The path to platformize.
+ * @return string The platform-specific path.
+ */
+function toPlatformPath(pth) {
+    return pth.replace(/[/\\]/g, path.sep);
+}
+exports.toPlatformPath = toPlatformPath;
+//# sourceMappingURL=path-utils.js.map
+
+/***/ }),
+
+/***/ 2844:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
+const os_1 = __nccwpck_require__(2037);
+const fs_1 = __nccwpck_require__(7147);
+const { access, appendFile, writeFile } = fs_1.promises;
+exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
+exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
+class Summary {
+    constructor() {
+        this._buffer = '';
+    }
+    /**
+     * Finds the summary file path from the environment, rejects if env var is not found or file does not exist
+     * Also checks r/w permissions.
+     *
+     * @returns step summary file path
+     */
+    filePath() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._filePath) {
+                return this._filePath;
+            }
+            const pathFromEnv = process.env[exports.SUMMARY_ENV_VAR];
+            if (!pathFromEnv) {
+                throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
+            }
+            try {
+                yield access(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            }
+            catch (_a) {
+                throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
+            }
+            this._filePath = pathFromEnv;
+            return this._filePath;
+        });
+    }
+    /**
+     * Wraps content in an HTML tag, adding any HTML attributes
+     *
+     * @param {string} tag HTML tag to wrap
+     * @param {string | null} content content within the tag
+     * @param {[attribute: string]: string} attrs key-value list of HTML attributes to add
+     *
+     * @returns {string} content wrapped in HTML element
+     */
+    wrap(tag, content, attrs = {}) {
+        const htmlAttrs = Object.entries(attrs)
+            .map(([key, value]) => ` ${key}="${value}"`)
+            .join('');
+        if (!content) {
+            return `<${tag}${htmlAttrs}>`;
+        }
+        return `<${tag}${htmlAttrs}>${content}</${tag}>`;
+    }
+    /**
+     * Writes text in the buffer to the summary buffer file and empties buffer. Will append by default.
+     *
+     * @param {SummaryWriteOptions} [options] (optional) options for write operation
+     *
+     * @returns {Promise<Summary>} summary instance
+     */
+    write(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
+            const filePath = yield this.filePath();
+            const writeFunc = overwrite ? writeFile : appendFile;
+            yield writeFunc(filePath, this._buffer, { encoding: 'utf8' });
+            return this.emptyBuffer();
+        });
+    }
+    /**
+     * Clears the summary buffer and wipes the summary file
+     *
+     * @returns {Summary} summary instance
+     */
+    clear() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.emptyBuffer().write({ overwrite: true });
+        });
+    }
+    /**
+     * Returns the current summary buffer as a string
+     *
+     * @returns {string} string of summary buffer
+     */
+    stringify() {
+        return this._buffer;
+    }
+    /**
+     * If the summary buffer is empty
+     *
+     * @returns {boolen} true if the buffer is empty
+     */
+    isEmptyBuffer() {
+        return this._buffer.length === 0;
+    }
+    /**
+     * Resets the summary buffer without writing to summary file
+     *
+     * @returns {Summary} summary instance
+     */
+    emptyBuffer() {
+        this._buffer = '';
+        return this;
+    }
+    /**
+     * Adds raw text to the summary buffer
+     *
+     * @param {string} text content to add
+     * @param {boolean} [addEOL=false] (optional) append an EOL to the raw text (default: false)
+     *
+     * @returns {Summary} summary instance
+     */
+    addRaw(text, addEOL = false) {
+        this._buffer += text;
+        return addEOL ? this.addEOL() : this;
+    }
+    /**
+     * Adds the operating system-specific end-of-line marker to the buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addEOL() {
+        return this.addRaw(os_1.EOL);
+    }
+    /**
+     * Adds an HTML codeblock to the summary buffer
+     *
+     * @param {string} code content to render within fenced code block
+     * @param {string} lang (optional) language to syntax highlight code
+     *
+     * @returns {Summary} summary instance
+     */
+    addCodeBlock(code, lang) {
+        const attrs = Object.assign({}, (lang && { lang }));
+        const element = this.wrap('pre', this.wrap('code', code), attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML list to the summary buffer
+     *
+     * @param {string[]} items list of items to render
+     * @param {boolean} [ordered=false] (optional) if the rendered list should be ordered or not (default: false)
+     *
+     * @returns {Summary} summary instance
+     */
+    addList(items, ordered = false) {
+        const tag = ordered ? 'ol' : 'ul';
+        const listItems = items.map(item => this.wrap('li', item)).join('');
+        const element = this.wrap(tag, listItems);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML table to the summary buffer
+     *
+     * @param {SummaryTableCell[]} rows table rows
+     *
+     * @returns {Summary} summary instance
+     */
+    addTable(rows) {
+        const tableBody = rows
+            .map(row => {
+            const cells = row
+                .map(cell => {
+                if (typeof cell === 'string') {
+                    return this.wrap('td', cell);
+                }
+                const { header, data, colspan, rowspan } = cell;
+                const tag = header ? 'th' : 'td';
+                const attrs = Object.assign(Object.assign({}, (colspan && { colspan })), (rowspan && { rowspan }));
+                return this.wrap(tag, data, attrs);
+            })
+                .join('');
+            return this.wrap('tr', cells);
+        })
+            .join('');
+        const element = this.wrap('table', tableBody);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds a collapsable HTML details element to the summary buffer
+     *
+     * @param {string} label text for the closed state
+     * @param {string} content collapsable content
+     *
+     * @returns {Summary} summary instance
+     */
+    addDetails(label, content) {
+        const element = this.wrap('details', this.wrap('summary', label) + content);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML image tag to the summary buffer
+     *
+     * @param {string} src path to the image you to embed
+     * @param {string} alt text description of the image
+     * @param {SummaryImageOptions} options (optional) addition image attributes
+     *
+     * @returns {Summary} summary instance
+     */
+    addImage(src, alt, options) {
+        const { width, height } = options || {};
+        const attrs = Object.assign(Object.assign({}, (width && { width })), (height && { height }));
+        const element = this.wrap('img', null, Object.assign({ src, alt }, attrs));
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML section heading element
+     *
+     * @param {string} text heading text
+     * @param {number | string} [level=1] (optional) the heading level, default: 1
+     *
+     * @returns {Summary} summary instance
+     */
+    addHeading(text, level) {
+        const tag = `h${level}`;
+        const allowedTag = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)
+            ? tag
+            : 'h1';
+        const element = this.wrap(allowedTag, text);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML thematic break (<hr>) to the summary buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addSeparator() {
+        const element = this.wrap('hr', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML line break (<br>) to the summary buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addBreak() {
+        const element = this.wrap('br', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML blockquote to the summary buffer
+     *
+     * @param {string} text quote text
+     * @param {string} cite (optional) citation url
+     *
+     * @returns {Summary} summary instance
+     */
+    addQuote(text, cite) {
+        const attrs = Object.assign({}, (cite && { cite }));
+        const element = this.wrap('blockquote', text, attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML anchor tag to the summary buffer
+     *
+     * @param {string} text link text/content
+     * @param {string} href hyperlink
+     *
+     * @returns {Summary} summary instance
+     */
+    addLink(text, href) {
+        const element = this.wrap('a', text, { href });
+        return this.addRaw(element).addEOL();
+    }
+}
+const _summary = new Summary();
+/**
+ * @deprecated use `core.summary`
+ */
+exports.markdownSummary = _summary;
+exports.summary = _summary;
+//# sourceMappingURL=summary.js.map
+
+/***/ }),
+
+/***/ 6856:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -606,28 +979,41 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 2321:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ 3694:
+/***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PersonalAccessTokenCredentialHandler = exports.BearerCredentialHandler = exports.BasicCredentialHandler = void 0;
 class BasicCredentialHandler {
     constructor(username, password) {
         this.username = username;
         this.password = password;
     }
     prepareRequest(options) {
-        options.headers['Authorization'] =
-            'Basic ' +
-                Buffer.from(this.username + ':' + this.password).toString('base64');
+        if (!options.headers) {
+            throw Error('The request has no headers');
+        }
+        options.headers['Authorization'] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString('base64')}`;
     }
     // This handler cannot handle 401
-    canHandleAuthentication(response) {
+    canHandleAuthentication() {
         return false;
     }
-    handleAuthentication(httpClient, requestInfo, objs) {
-        return null;
+    handleAuthentication() {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error('not implemented');
+        });
     }
 }
 exports.BasicCredentialHandler = BasicCredentialHandler;
@@ -638,14 +1024,19 @@ class BearerCredentialHandler {
     // currently implements pre-authorization
     // TODO: support preAuth = false where it hooks on 401
     prepareRequest(options) {
-        options.headers['Authorization'] = 'Bearer ' + this.token;
+        if (!options.headers) {
+            throw Error('The request has no headers');
+        }
+        options.headers['Authorization'] = `Bearer ${this.token}`;
     }
     // This handler cannot handle 401
-    canHandleAuthentication(response) {
+    canHandleAuthentication() {
         return false;
     }
-    handleAuthentication(httpClient, requestInfo, objs) {
-        return null;
+    handleAuthentication() {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error('not implemented');
+        });
     }
 }
 exports.BearerCredentialHandler = BearerCredentialHandler;
@@ -656,32 +1047,66 @@ class PersonalAccessTokenCredentialHandler {
     // currently implements pre-authorization
     // TODO: support preAuth = false where it hooks on 401
     prepareRequest(options) {
-        options.headers['Authorization'] =
-            'Basic ' + Buffer.from('PAT:' + this.token).toString('base64');
+        if (!options.headers) {
+            throw Error('The request has no headers');
+        }
+        options.headers['Authorization'] = `Basic ${Buffer.from(`PAT:${this.token}`).toString('base64')}`;
     }
     // This handler cannot handle 401
-    canHandleAuthentication(response) {
+    canHandleAuthentication() {
         return false;
     }
-    handleAuthentication(httpClient, requestInfo, objs) {
-        return null;
+    handleAuthentication() {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error('not implemented');
+        });
     }
 }
 exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHandler;
-
+//# sourceMappingURL=auth.js.map
 
 /***/ }),
 
-/***/ 9740:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ 3329:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const http = __nccwpck_require__(3685);
-const https = __nccwpck_require__(5687);
-const pm = __nccwpck_require__(2929);
-let tunnel;
+exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
+const http = __importStar(__nccwpck_require__(3685));
+const https = __importStar(__nccwpck_require__(5687));
+const pm = __importStar(__nccwpck_require__(6594));
+const tunnel = __importStar(__nccwpck_require__(8316));
 var HttpCodes;
 (function (HttpCodes) {
     HttpCodes[HttpCodes["OK"] = 200] = "OK";
@@ -726,7 +1151,7 @@ var MediaTypes;
  * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
  */
 function getProxyUrl(serverUrl) {
-    let proxyUrl = pm.getProxyUrl(new URL(serverUrl));
+    const proxyUrl = pm.getProxyUrl(new URL(serverUrl));
     return proxyUrl ? proxyUrl.href : '';
 }
 exports.getProxyUrl = getProxyUrl;
@@ -759,20 +1184,22 @@ class HttpClientResponse {
         this.message = message;
     }
     readBody() {
-        return new Promise(async (resolve, reject) => {
-            let output = Buffer.alloc(0);
-            this.message.on('data', (chunk) => {
-                output = Buffer.concat([output, chunk]);
-            });
-            this.message.on('end', () => {
-                resolve(output.toString());
-            });
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+                let output = Buffer.alloc(0);
+                this.message.on('data', (chunk) => {
+                    output = Buffer.concat([output, chunk]);
+                });
+                this.message.on('end', () => {
+                    resolve(output.toString());
+                });
+            }));
         });
     }
 }
 exports.HttpClientResponse = HttpClientResponse;
 function isHttps(requestUrl) {
-    let parsedUrl = new URL(requestUrl);
+    const parsedUrl = new URL(requestUrl);
     return parsedUrl.protocol === 'https:';
 }
 exports.isHttps = isHttps;
@@ -815,141 +1242,169 @@ class HttpClient {
         }
     }
     options(requestUrl, additionalHeaders) {
-        return this.request('OPTIONS', requestUrl, null, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('OPTIONS', requestUrl, null, additionalHeaders || {});
+        });
     }
     get(requestUrl, additionalHeaders) {
-        return this.request('GET', requestUrl, null, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('GET', requestUrl, null, additionalHeaders || {});
+        });
     }
     del(requestUrl, additionalHeaders) {
-        return this.request('DELETE', requestUrl, null, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('DELETE', requestUrl, null, additionalHeaders || {});
+        });
     }
     post(requestUrl, data, additionalHeaders) {
-        return this.request('POST', requestUrl, data, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('POST', requestUrl, data, additionalHeaders || {});
+        });
     }
     patch(requestUrl, data, additionalHeaders) {
-        return this.request('PATCH', requestUrl, data, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('PATCH', requestUrl, data, additionalHeaders || {});
+        });
     }
     put(requestUrl, data, additionalHeaders) {
-        return this.request('PUT', requestUrl, data, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('PUT', requestUrl, data, additionalHeaders || {});
+        });
     }
     head(requestUrl, additionalHeaders) {
-        return this.request('HEAD', requestUrl, null, additionalHeaders || {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request('HEAD', requestUrl, null, additionalHeaders || {});
+        });
     }
     sendStream(verb, requestUrl, stream, additionalHeaders) {
-        return this.request(verb, requestUrl, stream, additionalHeaders);
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.request(verb, requestUrl, stream, additionalHeaders);
+        });
     }
     /**
      * Gets a typed object from an endpoint
      * Be aware that not found returns a null.  Other errors (4xx, 5xx) reject the promise
      */
-    async getJson(requestUrl, additionalHeaders = {}) {
-        additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-        let res = await this.get(requestUrl, additionalHeaders);
-        return this._processResponse(res, this.requestOptions);
+    getJson(requestUrl, additionalHeaders = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+            const res = yield this.get(requestUrl, additionalHeaders);
+            return this._processResponse(res, this.requestOptions);
+        });
     }
-    async postJson(requestUrl, obj, additionalHeaders = {}) {
-        let data = JSON.stringify(obj, null, 2);
-        additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-        additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-        let res = await this.post(requestUrl, data, additionalHeaders);
-        return this._processResponse(res, this.requestOptions);
+    postJson(requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = JSON.stringify(obj, null, 2);
+            additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+            additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+            const res = yield this.post(requestUrl, data, additionalHeaders);
+            return this._processResponse(res, this.requestOptions);
+        });
     }
-    async putJson(requestUrl, obj, additionalHeaders = {}) {
-        let data = JSON.stringify(obj, null, 2);
-        additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-        additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-        let res = await this.put(requestUrl, data, additionalHeaders);
-        return this._processResponse(res, this.requestOptions);
+    putJson(requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = JSON.stringify(obj, null, 2);
+            additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+            additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+            const res = yield this.put(requestUrl, data, additionalHeaders);
+            return this._processResponse(res, this.requestOptions);
+        });
     }
-    async patchJson(requestUrl, obj, additionalHeaders = {}) {
-        let data = JSON.stringify(obj, null, 2);
-        additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-        additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-        let res = await this.patch(requestUrl, data, additionalHeaders);
-        return this._processResponse(res, this.requestOptions);
+    patchJson(requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = JSON.stringify(obj, null, 2);
+            additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+            additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+            const res = yield this.patch(requestUrl, data, additionalHeaders);
+            return this._processResponse(res, this.requestOptions);
+        });
     }
     /**
      * Makes a raw http request.
      * All other methods such as get, post, patch, and request ultimately call this.
      * Prefer get, del, post and patch
      */
-    async request(verb, requestUrl, data, headers) {
-        if (this._disposed) {
-            throw new Error('Client has already been disposed.');
-        }
-        let parsedUrl = new URL(requestUrl);
-        let info = this._prepareRequest(verb, parsedUrl, headers);
-        // Only perform retries on reads since writes may not be idempotent.
-        let maxTries = this._allowRetries && RetryableHttpVerbs.indexOf(verb) != -1
-            ? this._maxRetries + 1
-            : 1;
-        let numTries = 0;
-        let response;
-        while (numTries < maxTries) {
-            response = await this.requestRaw(info, data);
-            // Check if it's an authentication challenge
-            if (response &&
-                response.message &&
-                response.message.statusCode === HttpCodes.Unauthorized) {
-                let authenticationHandler;
-                for (let i = 0; i < this.handlers.length; i++) {
-                    if (this.handlers[i].canHandleAuthentication(response)) {
-                        authenticationHandler = this.handlers[i];
-                        break;
-                    }
-                }
-                if (authenticationHandler) {
-                    return authenticationHandler.handleAuthentication(this, info, data);
-                }
-                else {
-                    // We have received an unauthorized response but have no handlers to handle it.
-                    // Let the response return to the caller.
-                    return response;
-                }
+    request(verb, requestUrl, data, headers) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._disposed) {
+                throw new Error('Client has already been disposed.');
             }
-            let redirectsRemaining = this._maxRedirects;
-            while (HttpRedirectCodes.indexOf(response.message.statusCode) != -1 &&
-                this._allowRedirects &&
-                redirectsRemaining > 0) {
-                const redirectUrl = response.message.headers['location'];
-                if (!redirectUrl) {
-                    // if there's no location to redirect to, we won't
-                    break;
-                }
-                let parsedRedirectUrl = new URL(redirectUrl);
-                if (parsedUrl.protocol == 'https:' &&
-                    parsedUrl.protocol != parsedRedirectUrl.protocol &&
-                    !this._allowRedirectDowngrade) {
-                    throw new Error('Redirect from HTTPS to HTTP protocol. This downgrade is not allowed for security reasons. If you want to allow this behavior, set the allowRedirectDowngrade option to true.');
-                }
-                // we need to finish reading the response before reassigning response
-                // which will leak the open socket.
-                await response.readBody();
-                // strip authorization header if redirected to a different hostname
-                if (parsedRedirectUrl.hostname !== parsedUrl.hostname) {
-                    for (let header in headers) {
-                        // header names are case insensitive
-                        if (header.toLowerCase() === 'authorization') {
-                            delete headers[header];
+            const parsedUrl = new URL(requestUrl);
+            let info = this._prepareRequest(verb, parsedUrl, headers);
+            // Only perform retries on reads since writes may not be idempotent.
+            const maxTries = this._allowRetries && RetryableHttpVerbs.includes(verb)
+                ? this._maxRetries + 1
+                : 1;
+            let numTries = 0;
+            let response;
+            do {
+                response = yield this.requestRaw(info, data);
+                // Check if it's an authentication challenge
+                if (response &&
+                    response.message &&
+                    response.message.statusCode === HttpCodes.Unauthorized) {
+                    let authenticationHandler;
+                    for (const handler of this.handlers) {
+                        if (handler.canHandleAuthentication(response)) {
+                            authenticationHandler = handler;
+                            break;
                         }
                     }
+                    if (authenticationHandler) {
+                        return authenticationHandler.handleAuthentication(this, info, data);
+                    }
+                    else {
+                        // We have received an unauthorized response but have no handlers to handle it.
+                        // Let the response return to the caller.
+                        return response;
+                    }
                 }
-                // let's make the request with the new redirectUrl
-                info = this._prepareRequest(verb, parsedRedirectUrl, headers);
-                response = await this.requestRaw(info, data);
-                redirectsRemaining--;
-            }
-            if (HttpResponseRetryCodes.indexOf(response.message.statusCode) == -1) {
-                // If not a retry code, return immediately instead of retrying
-                return response;
-            }
-            numTries += 1;
-            if (numTries < maxTries) {
-                await response.readBody();
-                await this._performExponentialBackoff(numTries);
-            }
-        }
-        return response;
+                let redirectsRemaining = this._maxRedirects;
+                while (response.message.statusCode &&
+                    HttpRedirectCodes.includes(response.message.statusCode) &&
+                    this._allowRedirects &&
+                    redirectsRemaining > 0) {
+                    const redirectUrl = response.message.headers['location'];
+                    if (!redirectUrl) {
+                        // if there's no location to redirect to, we won't
+                        break;
+                    }
+                    const parsedRedirectUrl = new URL(redirectUrl);
+                    if (parsedUrl.protocol === 'https:' &&
+                        parsedUrl.protocol !== parsedRedirectUrl.protocol &&
+                        !this._allowRedirectDowngrade) {
+                        throw new Error('Redirect from HTTPS to HTTP protocol. This downgrade is not allowed for security reasons. If you want to allow this behavior, set the allowRedirectDowngrade option to true.');
+                    }
+                    // we need to finish reading the response before reassigning response
+                    // which will leak the open socket.
+                    yield response.readBody();
+                    // strip authorization header if redirected to a different hostname
+                    if (parsedRedirectUrl.hostname !== parsedUrl.hostname) {
+                        for (const header in headers) {
+                            // header names are case insensitive
+                            if (header.toLowerCase() === 'authorization') {
+                                delete headers[header];
+                            }
+                        }
+                    }
+                    // let's make the request with the new redirectUrl
+                    info = this._prepareRequest(verb, parsedRedirectUrl, headers);
+                    response = yield this.requestRaw(info, data);
+                    redirectsRemaining--;
+                }
+                if (!response.message.statusCode ||
+                    !HttpResponseRetryCodes.includes(response.message.statusCode)) {
+                    // If not a retry code, return immediately instead of retrying
+                    return response;
+                }
+                numTries += 1;
+                if (numTries < maxTries) {
+                    yield response.readBody();
+                    yield this._performExponentialBackoff(numTries);
+                }
+            } while (numTries < maxTries);
+            return response;
+        });
     }
     /**
      * Needs to be called if keepAlive is set to true in request options.
@@ -966,14 +1421,22 @@ class HttpClient {
      * @param data
      */
     requestRaw(info, data) {
-        return new Promise((resolve, reject) => {
-            let callbackForResult = function (err, res) {
-                if (err) {
-                    reject(err);
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                function callbackForResult(err, res) {
+                    if (err) {
+                        reject(err);
+                    }
+                    else if (!res) {
+                        // If `err` is not passed, then `res` must be passed.
+                        reject(new Error('Unknown error'));
+                    }
+                    else {
+                        resolve(res);
+                    }
                 }
-                resolve(res);
-            };
-            this.requestRawWithCallback(info, data, callbackForResult);
+                this.requestRawWithCallback(info, data, callbackForResult);
+            });
         });
     }
     /**
@@ -983,21 +1446,24 @@ class HttpClient {
      * @param onResult
      */
     requestRawWithCallback(info, data, onResult) {
-        let socket;
         if (typeof data === 'string') {
+            if (!info.options.headers) {
+                info.options.headers = {};
+            }
             info.options.headers['Content-Length'] = Buffer.byteLength(data, 'utf8');
         }
         let callbackCalled = false;
-        let handleResult = (err, res) => {
+        function handleResult(err, res) {
             if (!callbackCalled) {
                 callbackCalled = true;
                 onResult(err, res);
             }
-        };
-        let req = info.httpModule.request(info.options, (msg) => {
-            let res = new HttpClientResponse(msg);
-            handleResult(null, res);
+        }
+        const req = info.httpModule.request(info.options, (msg) => {
+            const res = new HttpClientResponse(msg);
+            handleResult(undefined, res);
         });
+        let socket;
         req.on('socket', sock => {
             socket = sock;
         });
@@ -1006,12 +1472,12 @@ class HttpClient {
             if (socket) {
                 socket.end();
             }
-            handleResult(new Error('Request timeout: ' + info.options.path), null);
+            handleResult(new Error(`Request timeout: ${info.options.path}`));
         });
         req.on('error', function (err) {
             // err has statusCode property
             // res should have headers
-            handleResult(err, null);
+            handleResult(err);
         });
         if (data && typeof data === 'string') {
             req.write(data, 'utf8');
@@ -1032,7 +1498,7 @@ class HttpClient {
      * @param serverUrl  The server URL where the request will be sent. For example, https://api.github.com
      */
     getAgent(serverUrl) {
-        let parsedUrl = new URL(serverUrl);
+        const parsedUrl = new URL(serverUrl);
         return this._getAgent(parsedUrl);
     }
     _prepareRequest(method, requestUrl, headers) {
@@ -1056,21 +1522,19 @@ class HttpClient {
         info.options.agent = this._getAgent(info.parsedUrl);
         // gives handlers an opportunity to participate
         if (this.handlers) {
-            this.handlers.forEach(handler => {
+            for (const handler of this.handlers) {
                 handler.prepareRequest(info.options);
-            });
+            }
         }
         return info;
     }
     _mergeHeaders(headers) {
-        const lowercaseKeys = obj => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCase()] = obj[k]), c), {});
         if (this.requestOptions && this.requestOptions.headers) {
-            return Object.assign({}, lowercaseKeys(this.requestOptions.headers), lowercaseKeys(headers));
+            return Object.assign({}, lowercaseKeys(this.requestOptions.headers), lowercaseKeys(headers || {}));
         }
         return lowercaseKeys(headers || {});
     }
     _getExistingOrDefaultHeader(additionalHeaders, header, _default) {
-        const lowercaseKeys = obj => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCase()] = obj[k]), c), {});
         let clientHeader;
         if (this.requestOptions && this.requestOptions.headers) {
             clientHeader = lowercaseKeys(this.requestOptions.headers)[header];
@@ -1079,8 +1543,8 @@ class HttpClient {
     }
     _getAgent(parsedUrl) {
         let agent;
-        let proxyUrl = pm.getProxyUrl(parsedUrl);
-        let useProxy = proxyUrl && proxyUrl.hostname;
+        const proxyUrl = pm.getProxyUrl(parsedUrl);
+        const useProxy = proxyUrl && proxyUrl.hostname;
         if (this._keepAlive && useProxy) {
             agent = this._proxyAgent;
         }
@@ -1088,29 +1552,22 @@ class HttpClient {
             agent = this._agent;
         }
         // if agent is already assigned use that agent.
-        if (!!agent) {
+        if (agent) {
             return agent;
         }
         const usingSsl = parsedUrl.protocol === 'https:';
         let maxSockets = 100;
-        if (!!this.requestOptions) {
+        if (this.requestOptions) {
             maxSockets = this.requestOptions.maxSockets || http.globalAgent.maxSockets;
         }
-        if (useProxy) {
-            // If using proxy, need tunnel
-            if (!tunnel) {
-                tunnel = __nccwpck_require__(3357);
-            }
+        // This is `useProxy` again, but we need to check `proxyURl` directly for TypeScripts's flow analysis.
+        if (proxyUrl && proxyUrl.hostname) {
             const agentOptions = {
-                maxSockets: maxSockets,
+                maxSockets,
                 keepAlive: this._keepAlive,
-                proxy: {
-                    ...((proxyUrl.username || proxyUrl.password) && {
-                        proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`
-                    }),
-                    host: proxyUrl.hostname,
-                    port: proxyUrl.port
-                }
+                proxy: Object.assign(Object.assign({}, ((proxyUrl.username || proxyUrl.password) && {
+                    proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`
+                })), { host: proxyUrl.hostname, port: proxyUrl.port })
             };
             let tunnelAgent;
             const overHttps = proxyUrl.protocol === 'https:';
@@ -1125,7 +1582,7 @@ class HttpClient {
         }
         // if reusing agent across request and tunneling agent isn't assigned create a new agent
         if (this._keepAlive && !agent) {
-            const options = { keepAlive: this._keepAlive, maxSockets: maxSockets };
+            const options = { keepAlive: this._keepAlive, maxSockets };
             agent = usingSsl ? new https.Agent(options) : new http.Agent(options);
             this._agent = agent;
         }
@@ -1144,109 +1601,121 @@ class HttpClient {
         return agent;
     }
     _performExponentialBackoff(retryNumber) {
-        retryNumber = Math.min(ExponentialBackoffCeiling, retryNumber);
-        const ms = ExponentialBackoffTimeSlice * Math.pow(2, retryNumber);
-        return new Promise(resolve => setTimeout(() => resolve(), ms));
+        return __awaiter(this, void 0, void 0, function* () {
+            retryNumber = Math.min(ExponentialBackoffCeiling, retryNumber);
+            const ms = ExponentialBackoffTimeSlice * Math.pow(2, retryNumber);
+            return new Promise(resolve => setTimeout(() => resolve(), ms));
+        });
     }
-    static dateTimeDeserializer(key, value) {
-        if (typeof value === 'string') {
-            let a = new Date(value);
-            if (!isNaN(a.valueOf())) {
-                return a;
-            }
-        }
-        return value;
-    }
-    async _processResponse(res, options) {
-        return new Promise(async (resolve, reject) => {
-            const statusCode = res.message.statusCode;
-            const response = {
-                statusCode: statusCode,
-                result: null,
-                headers: {}
-            };
-            // not found leads to null obj returned
-            if (statusCode == HttpCodes.NotFound) {
-                resolve(response);
-            }
-            let obj;
-            let contents;
-            // get the result from the body
-            try {
-                contents = await res.readBody();
-                if (contents && contents.length > 0) {
-                    if (options && options.deserializeDates) {
-                        obj = JSON.parse(contents, HttpClient.dateTimeDeserializer);
+    _processResponse(res, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                const statusCode = res.message.statusCode || 0;
+                const response = {
+                    statusCode,
+                    result: null,
+                    headers: {}
+                };
+                // not found leads to null obj returned
+                if (statusCode === HttpCodes.NotFound) {
+                    resolve(response);
+                }
+                // get the result from the body
+                function dateTimeDeserializer(key, value) {
+                    if (typeof value === 'string') {
+                        const a = new Date(value);
+                        if (!isNaN(a.valueOf())) {
+                            return a;
+                        }
+                    }
+                    return value;
+                }
+                let obj;
+                let contents;
+                try {
+                    contents = yield res.readBody();
+                    if (contents && contents.length > 0) {
+                        if (options && options.deserializeDates) {
+                            obj = JSON.parse(contents, dateTimeDeserializer);
+                        }
+                        else {
+                            obj = JSON.parse(contents);
+                        }
+                        response.result = obj;
+                    }
+                    response.headers = res.message.headers;
+                }
+                catch (err) {
+                    // Invalid resource (contents not json);  leaving result obj null
+                }
+                // note that 3xx redirects are handled by the http layer.
+                if (statusCode > 299) {
+                    let msg;
+                    // if exception/error in body, attempt to get better error
+                    if (obj && obj.message) {
+                        msg = obj.message;
+                    }
+                    else if (contents && contents.length > 0) {
+                        // it may be the case that the exception is in the body message as string
+                        msg = contents;
                     }
                     else {
-                        obj = JSON.parse(contents);
+                        msg = `Failed request: (${statusCode})`;
                     }
-                    response.result = obj;
-                }
-                response.headers = res.message.headers;
-            }
-            catch (err) {
-                // Invalid resource (contents not json);  leaving result obj null
-            }
-            // note that 3xx redirects are handled by the http layer.
-            if (statusCode > 299) {
-                let msg;
-                // if exception/error in body, attempt to get better error
-                if (obj && obj.message) {
-                    msg = obj.message;
-                }
-                else if (contents && contents.length > 0) {
-                    // it may be the case that the exception is in the body message as string
-                    msg = contents;
+                    const err = new HttpClientError(msg, statusCode);
+                    err.result = response.result;
+                    reject(err);
                 }
                 else {
-                    msg = 'Failed request: (' + statusCode + ')';
+                    resolve(response);
                 }
-                let err = new HttpClientError(msg, statusCode);
-                err.result = response.result;
-                reject(err);
-            }
-            else {
-                resolve(response);
-            }
+            }));
         });
     }
 }
 exports.HttpClient = HttpClient;
-
+const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCase()] = obj[k]), c), {});
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 2929:
+/***/ 6594:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.checkBypass = exports.getProxyUrl = void 0;
 function getProxyUrl(reqUrl) {
-    let usingSsl = reqUrl.protocol === 'https:';
-    let proxyUrl;
+    const usingSsl = reqUrl.protocol === 'https:';
     if (checkBypass(reqUrl)) {
-        return proxyUrl;
+        return undefined;
     }
-    let proxyVar;
-    if (usingSsl) {
-        proxyVar = process.env['https_proxy'] || process.env['HTTPS_PROXY'];
+    const proxyVar = (() => {
+        if (usingSsl) {
+            return process.env['https_proxy'] || process.env['HTTPS_PROXY'];
+        }
+        else {
+            return process.env['http_proxy'] || process.env['HTTP_PROXY'];
+        }
+    })();
+    if (proxyVar) {
+        return new URL(proxyVar);
     }
     else {
-        proxyVar = process.env['http_proxy'] || process.env['HTTP_PROXY'];
+        return undefined;
     }
-    if (proxyVar) {
-        proxyUrl = new URL(proxyVar);
-    }
-    return proxyUrl;
 }
 exports.getProxyUrl = getProxyUrl;
 function checkBypass(reqUrl) {
     if (!reqUrl.hostname) {
         return false;
     }
-    let noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
+    const reqHost = reqUrl.hostname;
+    if (isLoopbackAddress(reqHost)) {
+        return true;
+    }
+    const noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
     if (!noProxy) {
         return false;
     }
@@ -1262,27 +1731,38 @@ function checkBypass(reqUrl) {
         reqPort = 443;
     }
     // Format the request hostname and hostname with port
-    let upperReqHosts = [reqUrl.hostname.toUpperCase()];
+    const upperReqHosts = [reqUrl.hostname.toUpperCase()];
     if (typeof reqPort === 'number') {
         upperReqHosts.push(`${upperReqHosts[0]}:${reqPort}`);
     }
     // Compare request host against noproxy
-    for (let upperNoProxyItem of noProxy
+    for (const upperNoProxyItem of noProxy
         .split(',')
         .map(x => x.trim().toUpperCase())
         .filter(x => x)) {
-        if (upperReqHosts.some(x => x === upperNoProxyItem)) {
+        if (upperNoProxyItem === '*' ||
+            upperReqHosts.some(x => x === upperNoProxyItem ||
+                x.endsWith(`.${upperNoProxyItem}`) ||
+                (upperNoProxyItem.startsWith('.') &&
+                    x.endsWith(`${upperNoProxyItem}`)))) {
             return true;
         }
     }
     return false;
 }
 exports.checkBypass = checkBypass;
-
+function isLoopbackAddress(host) {
+    const hostLower = host.toLowerCase();
+    return (hostLower === 'localhost' ||
+        hostLower.startsWith('127.') ||
+        hostLower.startsWith('[::1]') ||
+        hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
+//# sourceMappingURL=proxy.js.map
 
 /***/ }),
 
-/***/ 1582:
+/***/ 7820:
 /***/ ((module) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
@@ -1302,16 +1782,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ 269:
+/***/ 5625:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
-var errors = __nccwpck_require__(1582);
-var types = __nccwpck_require__(4692);
+var errors = __nccwpck_require__(7820);
+var types = __nccwpck_require__(8537);
 
-var Reader = __nccwpck_require__(949);
-var Writer = __nccwpck_require__(1570);
+var Reader = __nccwpck_require__(3682);
+var Writer = __nccwpck_require__(7682);
 
 
 // --- Exports
@@ -1336,16 +1816,16 @@ for (var e in errors) {
 
 /***/ }),
 
-/***/ 949:
+/***/ 3682:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
 var assert = __nccwpck_require__(9491);
-var Buffer = (__nccwpck_require__(5039).Buffer);
+var Buffer = (__nccwpck_require__(7273).Buffer);
 
-var ASN1 = __nccwpck_require__(4692);
-var errors = __nccwpck_require__(1582);
+var ASN1 = __nccwpck_require__(8537);
+var errors = __nccwpck_require__(7820);
 
 
 // --- Globals
@@ -1605,7 +2085,7 @@ module.exports = Reader;
 
 /***/ }),
 
-/***/ 4692:
+/***/ 8537:
 /***/ ((module) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
@@ -1648,15 +2128,15 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1570:
+/***/ 7682:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
 var assert = __nccwpck_require__(9491);
-var Buffer = (__nccwpck_require__(5039).Buffer);
-var ASN1 = __nccwpck_require__(4692);
-var errors = __nccwpck_require__(1582);
+var Buffer = (__nccwpck_require__(7273).Buffer);
+var ASN1 = __nccwpck_require__(8537);
+var errors = __nccwpck_require__(7820);
 
 
 // --- Globals
@@ -1972,7 +2452,7 @@ module.exports = Writer;
 
 /***/ }),
 
-/***/ 7713:
+/***/ 831:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
@@ -1980,7 +2460,7 @@ module.exports = Writer;
 // If you have no idea what ASN.1 or BER is, see this:
 // ftp://ftp.rsa.com/pub/pkcs/ascii/layman.asc
 
-var Ber = __nccwpck_require__(269);
+var Ber = __nccwpck_require__(5625);
 
 
 
@@ -1999,13 +2479,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6048:
+/***/ 2770:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var crypto_hash_sha512 = (__nccwpck_require__(7307).lowlevel.crypto_hash);
+var crypto_hash_sha512 = (__nccwpck_require__(6862).lowlevel.crypto_hash);
 
 /*
  * This file is a 1:1 port from the OpenBSD blowfish.c and bcrypt_pbkdf.c. As a
@@ -2563,7 +3043,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1614:
+/***/ 1333:
 /***/ ((module) => {
 
 /* eslint-disable node/no-deprecated-api */
@@ -2642,15 +3122,15 @@ module.exports = bufferFrom
 
 /***/ }),
 
-/***/ 8300:
+/***/ 9842:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var Writable = (__nccwpck_require__(1093).Writable)
-var inherits = __nccwpck_require__(9294)
-var bufferFrom = __nccwpck_require__(1614)
+var Writable = (__nccwpck_require__(7889).Writable)
+var inherits = __nccwpck_require__(4603)
+var bufferFrom = __nccwpck_require__(1333)
 
 if (typeof Uint8Array === 'undefined') {
-  var U8 = (__nccwpck_require__(4042)/* .Uint8Array */ .U2)
+  var U8 = (__nccwpck_require__(1900)/* .Uint8Array */ .U2)
 } else {
   var U8 = Uint8Array
 }
@@ -2793,7 +3273,20 @@ function u8Concat (parts) {
 
 /***/ }),
 
-/***/ 7322:
+/***/ 1298:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const binding = __nccwpck_require__(4570);
+
+module.exports = binding.getCPUInfo;
+
+
+/***/ }),
+
+/***/ 1910:
 /***/ ((module) => {
 
 "use strict";
@@ -2848,7 +3341,7 @@ module.exports = createError;
 
 /***/ }),
 
-/***/ 9294:
+/***/ 4603:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 try {
@@ -2858,13 +3351,13 @@ try {
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __nccwpck_require__(8207);
+  module.exports = __nccwpck_require__(336);
 }
 
 
 /***/ }),
 
-/***/ 8207:
+/***/ 336:
 /***/ ((module) => {
 
 if (typeof Object.create === 'function') {
@@ -2898,14 +3391,14 @@ if (typeof Object.create === 'function') {
 
 /***/ }),
 
-/***/ 8856:
+/***/ 3062:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var errcode = __nccwpck_require__(7322);
-var retry = __nccwpck_require__(9570);
+var errcode = __nccwpck_require__(1910);
+var retry = __nccwpck_require__(3290);
 
 var hasOwn = Object.prototype.hasOwnProperty;
 
@@ -2958,7 +3451,7 @@ module.exports = promiseRetry;
 
 /***/ }),
 
-/***/ 8706:
+/***/ 944:
 /***/ ((module) => {
 
 "use strict";
@@ -3082,7 +3575,7 @@ module.exports.q = codes;
 
 /***/ }),
 
-/***/ 1314:
+/***/ 7433:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3127,11 +3620,11 @@ var objectKeys = Object.keys || function (obj) {
 
 module.exports = Duplex;
 
-var Readable = __nccwpck_require__(2607);
+var Readable = __nccwpck_require__(2887);
 
-var Writable = __nccwpck_require__(3592);
+var Writable = __nccwpck_require__(2732);
 
-__nccwpck_require__(9294)(Duplex, Readable);
+__nccwpck_require__(4603)(Duplex, Readable);
 
 {
   // Allow the keys array to be GC'ed.
@@ -3228,7 +3721,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
 
 /***/ }),
 
-/***/ 3475:
+/***/ 6448:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3259,9 +3752,9 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
 
 module.exports = PassThrough;
 
-var Transform = __nccwpck_require__(9326);
+var Transform = __nccwpck_require__(3482);
 
-__nccwpck_require__(9294)(PassThrough, Transform);
+__nccwpck_require__(4603)(PassThrough, Transform);
 
 function PassThrough(options) {
   if (!(this instanceof PassThrough)) return new PassThrough(options);
@@ -3274,7 +3767,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 
 /***/ }),
 
-/***/ 2607:
+/***/ 2887:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3319,7 +3812,7 @@ var EElistenerCount = function EElistenerCount(emitter, type) {
 /*<replacement>*/
 
 
-var Stream = __nccwpck_require__(2883);
+var Stream = __nccwpck_require__(871);
 /*</replacement>*/
 
 
@@ -3349,14 +3842,14 @@ if (debugUtil && debugUtil.debuglog) {
 /*</replacement>*/
 
 
-var BufferList = __nccwpck_require__(4829);
+var BufferList = __nccwpck_require__(2031);
 
-var destroyImpl = __nccwpck_require__(4515);
+var destroyImpl = __nccwpck_require__(8307);
 
-var _require = __nccwpck_require__(256),
+var _require = __nccwpck_require__(53),
     getHighWaterMark = _require.getHighWaterMark;
 
-var _require$codes = (__nccwpck_require__(8706)/* .codes */ .q),
+var _require$codes = (__nccwpck_require__(944)/* .codes */ .q),
     ERR_INVALID_ARG_TYPE = _require$codes.ERR_INVALID_ARG_TYPE,
     ERR_STREAM_PUSH_AFTER_EOF = _require$codes.ERR_STREAM_PUSH_AFTER_EOF,
     ERR_METHOD_NOT_IMPLEMENTED = _require$codes.ERR_METHOD_NOT_IMPLEMENTED,
@@ -3367,7 +3860,7 @@ var StringDecoder;
 var createReadableStreamAsyncIterator;
 var from;
 
-__nccwpck_require__(9294)(Readable, Stream);
+__nccwpck_require__(4603)(Readable, Stream);
 
 var errorOrDestroy = destroyImpl.errorOrDestroy;
 var kProxyEvents = ['error', 'close', 'destroy', 'pause', 'resume'];
@@ -3384,7 +3877,7 @@ function prependListener(emitter, event, fn) {
 }
 
 function ReadableState(options, stream, isDuplex) {
-  Duplex = Duplex || __nccwpck_require__(1314);
+  Duplex = Duplex || __nccwpck_require__(7433);
   options = options || {}; // Duplex streams are both readable and writable, but share
   // the same options object.
   // However, some cases require setting options to different
@@ -3440,14 +3933,14 @@ function ReadableState(options, stream, isDuplex) {
   this.encoding = null;
 
   if (options.encoding) {
-    if (!StringDecoder) StringDecoder = (__nccwpck_require__(3122)/* .StringDecoder */ .s);
+    if (!StringDecoder) StringDecoder = (__nccwpck_require__(3673)/* .StringDecoder */ .s);
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
 }
 
 function Readable(options) {
-  Duplex = Duplex || __nccwpck_require__(1314);
+  Duplex = Duplex || __nccwpck_require__(7433);
   if (!(this instanceof Readable)) return new Readable(options); // Checking for a Stream.Duplex instance is faster here instead of inside
   // the ReadableState constructor, at least with V8 6.5
 
@@ -3602,7 +4095,7 @@ Readable.prototype.isPaused = function () {
 
 
 Readable.prototype.setEncoding = function (enc) {
-  if (!StringDecoder) StringDecoder = (__nccwpck_require__(3122)/* .StringDecoder */ .s);
+  if (!StringDecoder) StringDecoder = (__nccwpck_require__(3673)/* .StringDecoder */ .s);
   var decoder = new StringDecoder(enc);
   this._readableState.decoder = decoder; // If setEncoding(null), decoder.encoding equals utf8
 
@@ -4286,7 +4779,7 @@ Readable.prototype.wrap = function (stream) {
 if (typeof Symbol === 'function') {
   Readable.prototype[Symbol.asyncIterator] = function () {
     if (createReadableStreamAsyncIterator === undefined) {
-      createReadableStreamAsyncIterator = __nccwpck_require__(4644);
+      createReadableStreamAsyncIterator = __nccwpck_require__(6669);
     }
 
     return createReadableStreamAsyncIterator(this);
@@ -4388,7 +4881,7 @@ function endReadableNT(state, stream) {
 if (typeof Symbol === 'function') {
   Readable.from = function (iterable, opts) {
     if (from === undefined) {
-      from = __nccwpck_require__(3142);
+      from = __nccwpck_require__(6150);
     }
 
     return from(Readable, iterable, opts);
@@ -4405,7 +4898,7 @@ function indexOf(xs, x) {
 
 /***/ }),
 
-/***/ 9326:
+/***/ 3482:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4474,15 +4967,15 @@ function indexOf(xs, x) {
 
 module.exports = Transform;
 
-var _require$codes = (__nccwpck_require__(8706)/* .codes */ .q),
+var _require$codes = (__nccwpck_require__(944)/* .codes */ .q),
     ERR_METHOD_NOT_IMPLEMENTED = _require$codes.ERR_METHOD_NOT_IMPLEMENTED,
     ERR_MULTIPLE_CALLBACK = _require$codes.ERR_MULTIPLE_CALLBACK,
     ERR_TRANSFORM_ALREADY_TRANSFORMING = _require$codes.ERR_TRANSFORM_ALREADY_TRANSFORMING,
     ERR_TRANSFORM_WITH_LENGTH_0 = _require$codes.ERR_TRANSFORM_WITH_LENGTH_0;
 
-var Duplex = __nccwpck_require__(1314);
+var Duplex = __nccwpck_require__(7433);
 
-__nccwpck_require__(9294)(Transform, Duplex);
+__nccwpck_require__(4603)(Transform, Duplex);
 
 function afterTransform(er, data) {
   var ts = this._transformState;
@@ -4613,7 +5106,7 @@ function done(stream, er, data) {
 
 /***/ }),
 
-/***/ 3592:
+/***/ 2732:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4676,13 +5169,13 @@ Writable.WritableState = WritableState;
 /*<replacement>*/
 
 var internalUtil = {
-  deprecate: __nccwpck_require__(8739)
+  deprecate: __nccwpck_require__(293)
 };
 /*</replacement>*/
 
 /*<replacement>*/
 
-var Stream = __nccwpck_require__(2883);
+var Stream = __nccwpck_require__(871);
 /*</replacement>*/
 
 
@@ -4698,12 +5191,12 @@ function _isUint8Array(obj) {
   return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
 }
 
-var destroyImpl = __nccwpck_require__(4515);
+var destroyImpl = __nccwpck_require__(8307);
 
-var _require = __nccwpck_require__(256),
+var _require = __nccwpck_require__(53),
     getHighWaterMark = _require.getHighWaterMark;
 
-var _require$codes = (__nccwpck_require__(8706)/* .codes */ .q),
+var _require$codes = (__nccwpck_require__(944)/* .codes */ .q),
     ERR_INVALID_ARG_TYPE = _require$codes.ERR_INVALID_ARG_TYPE,
     ERR_METHOD_NOT_IMPLEMENTED = _require$codes.ERR_METHOD_NOT_IMPLEMENTED,
     ERR_MULTIPLE_CALLBACK = _require$codes.ERR_MULTIPLE_CALLBACK,
@@ -4715,12 +5208,12 @@ var _require$codes = (__nccwpck_require__(8706)/* .codes */ .q),
 
 var errorOrDestroy = destroyImpl.errorOrDestroy;
 
-__nccwpck_require__(9294)(Writable, Stream);
+__nccwpck_require__(4603)(Writable, Stream);
 
 function nop() {}
 
 function WritableState(options, stream, isDuplex) {
-  Duplex = Duplex || __nccwpck_require__(1314);
+  Duplex = Duplex || __nccwpck_require__(7433);
   options = options || {}; // Duplex streams are both readable and writable, but share
   // the same options object.
   // However, some cases require setting options to different
@@ -4846,7 +5339,7 @@ if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.protot
 }
 
 function Writable(options) {
-  Duplex = Duplex || __nccwpck_require__(1314); // Writable ctor is applied to Duplexes, too.
+  Duplex = Duplex || __nccwpck_require__(7433); // Writable ctor is applied to Duplexes, too.
   // `realHasInstance` is necessary because using plain `instanceof`
   // would return false, as no `_writableState` property is attached.
   // Trying to use the custom `instanceof` for Writable here will also break the
@@ -5317,7 +5810,7 @@ Writable.prototype._destroy = function (err, cb) {
 
 /***/ }),
 
-/***/ 4644:
+/***/ 6669:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5327,7 +5820,7 @@ var _Object$setPrototypeO;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var finished = __nccwpck_require__(9120);
+var finished = __nccwpck_require__(4471);
 
 var kLastResolve = Symbol('lastResolve');
 var kLastReject = Symbol('lastReject');
@@ -5531,7 +6024,7 @@ module.exports = createReadableStreamAsyncIterator;
 
 /***/ }),
 
-/***/ 4829:
+/***/ 2031:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5748,7 +6241,7 @@ function () {
 
 /***/ }),
 
-/***/ 4515:
+/***/ 8307:
 /***/ ((module) => {
 
 "use strict";
@@ -5860,7 +6353,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9120:
+/***/ 4471:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5868,7 +6361,7 @@ module.exports = {
 // permission from the author, Mathias Buus (@mafintosh).
 
 
-var ERR_STREAM_PREMATURE_CLOSE = (__nccwpck_require__(8706)/* .codes.ERR_STREAM_PREMATURE_CLOSE */ .q.ERR_STREAM_PREMATURE_CLOSE);
+var ERR_STREAM_PREMATURE_CLOSE = (__nccwpck_require__(944)/* .codes.ERR_STREAM_PREMATURE_CLOSE */ .q.ERR_STREAM_PREMATURE_CLOSE);
 
 function once(callback) {
   var called = false;
@@ -5971,7 +6464,7 @@ module.exports = eos;
 
 /***/ }),
 
-/***/ 3142:
+/***/ 6150:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5987,7 +6480,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var ERR_INVALID_ARG_TYPE = (__nccwpck_require__(8706)/* .codes.ERR_INVALID_ARG_TYPE */ .q.ERR_INVALID_ARG_TYPE);
+var ERR_INVALID_ARG_TYPE = (__nccwpck_require__(944)/* .codes.ERR_INVALID_ARG_TYPE */ .q.ERR_INVALID_ARG_TYPE);
 
 function from(Readable, iterable, opts) {
   var iterator;
@@ -6042,7 +6535,7 @@ module.exports = from;
 
 /***/ }),
 
-/***/ 3961:
+/***/ 2514:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -6061,7 +6554,7 @@ function once(callback) {
   };
 }
 
-var _require$codes = (__nccwpck_require__(8706)/* .codes */ .q),
+var _require$codes = (__nccwpck_require__(944)/* .codes */ .q),
     ERR_MISSING_ARGS = _require$codes.ERR_MISSING_ARGS,
     ERR_STREAM_DESTROYED = _require$codes.ERR_STREAM_DESTROYED;
 
@@ -6080,7 +6573,7 @@ function destroyer(stream, reading, writing, callback) {
   stream.on('close', function () {
     closed = true;
   });
-  if (eos === undefined) eos = __nccwpck_require__(9120);
+  if (eos === undefined) eos = __nccwpck_require__(4471);
   eos(stream, {
     readable: reading,
     writable: writing
@@ -6146,13 +6639,13 @@ module.exports = pipeline;
 
 /***/ }),
 
-/***/ 256:
+/***/ 53:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var ERR_INVALID_OPT_VALUE = (__nccwpck_require__(8706)/* .codes.ERR_INVALID_OPT_VALUE */ .q.ERR_INVALID_OPT_VALUE);
+var ERR_INVALID_OPT_VALUE = (__nccwpck_require__(944)/* .codes.ERR_INVALID_OPT_VALUE */ .q.ERR_INVALID_OPT_VALUE);
 
 function highWaterMarkFrom(options, isDuplex, duplexKey) {
   return options.highWaterMark != null ? options.highWaterMark : isDuplex ? options[duplexKey] : null;
@@ -6180,7 +6673,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2883:
+/***/ 871:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 module.exports = __nccwpck_require__(2781);
@@ -6188,7 +6681,7 @@ module.exports = __nccwpck_require__(2781);
 
 /***/ }),
 
-/***/ 1093:
+/***/ 7889:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 var Stream = __nccwpck_require__(2781);
@@ -6197,31 +6690,31 @@ if (process.env.READABLE_STREAM === 'disable' && Stream) {
   Object.assign(module.exports, Stream);
   module.exports.Stream = Stream;
 } else {
-  exports = module.exports = __nccwpck_require__(2607);
+  exports = module.exports = __nccwpck_require__(2887);
   exports.Stream = Stream || exports;
   exports.Readable = exports;
-  exports.Writable = __nccwpck_require__(3592);
-  exports.Duplex = __nccwpck_require__(1314);
-  exports.Transform = __nccwpck_require__(9326);
-  exports.PassThrough = __nccwpck_require__(3475);
-  exports.finished = __nccwpck_require__(9120);
-  exports.pipeline = __nccwpck_require__(3961);
+  exports.Writable = __nccwpck_require__(2732);
+  exports.Duplex = __nccwpck_require__(7433);
+  exports.Transform = __nccwpck_require__(3482);
+  exports.PassThrough = __nccwpck_require__(6448);
+  exports.finished = __nccwpck_require__(4471);
+  exports.pipeline = __nccwpck_require__(2514);
 }
 
 
 /***/ }),
 
-/***/ 9570:
+/***/ 3290:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(580);
+module.exports = __nccwpck_require__(9596);
 
 /***/ }),
 
-/***/ 580:
+/***/ 9596:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-var RetryOperation = __nccwpck_require__(9827);
+var RetryOperation = __nccwpck_require__(716);
 
 exports.operation = function(options) {
   var timeouts = exports.timeouts(options);
@@ -6325,7 +6818,7 @@ exports.wrap = function(obj, options, methods) {
 
 /***/ }),
 
-/***/ 9827:
+/***/ 716:
 /***/ ((module) => {
 
 function RetryOperation(timeouts, options) {
@@ -6490,7 +6983,7 @@ RetryOperation.prototype.mainError = function() {
 
 /***/ }),
 
-/***/ 311:
+/***/ 2289:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
@@ -6562,7 +7055,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 /***/ }),
 
-/***/ 5039:
+/***/ 7273:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -6647,11 +7140,8 @@ module.exports = safer
 
 /***/ }),
 
-/***/ 7623:
+/***/ 7505:
 /***/ ((module) => {
-
-"use strict";
-
 
 const errorCode = {
   generic: 'ERR_GENERIC_CLIENT',
@@ -6659,7 +7149,8 @@ const errorCode = {
   badPath: 'ERR_BAD_PATH',
   permission: 'EACCES',
   notexist: 'ENOENT',
-  notdir: 'ENOTDIR'
+  notdir: 'ENOTDIR',
+  badAuth: 'ERR_BAD_AUTH',
 };
 
 const targetType = {
@@ -6668,34 +7159,30 @@ const targetType = {
   writeDir: 3,
   readDir: 4,
   readObj: 5,
-  writeObj: 6
+  writeObj: 6,
 };
 
 module.exports = {
   errorCode,
-  targetType
+  targetType,
 };
 
 
 /***/ }),
 
-/***/ 7479:
+/***/ 8352:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
-/**
- * ssh2 sftp client for node
- */
 
 
-
-const { Client } = __nccwpck_require__(9535);
-const fs = __nccwpck_require__(7147);
-const concat = __nccwpck_require__(8300);
-const promiseRetry = __nccwpck_require__(8856);
-const { join, parse } = __nccwpck_require__(1017);
+const { Client } = __nccwpck_require__(2750);
+const fs = __nccwpck_require__(7561);
+const concat = __nccwpck_require__(9842);
+const promiseRetry = __nccwpck_require__(3062);
+const { join, parse } = __nccwpck_require__(9411);
 const {
-  fmtError,
+  globalListener,
   addTempListeners,
   removeTempListeners,
   haveConnection,
@@ -6703,68 +7190,81 @@ const {
   localExists,
   haveLocalAccess,
   haveLocalCreate,
-  sleep,
-} = __nccwpck_require__(9227);
-const { errorCode } = __nccwpck_require__(7623);
+  partition,
+} = __nccwpck_require__(1762);
+const { errorCode } = __nccwpck_require__(7505);
 
 class SftpClient {
   constructor(clientName) {
+    this.version = '10.0.3';
     this.client = new Client();
     this.sftp = undefined;
-    this.clientName = clientName ? clientName : 'sftp';
+    this.clientName = clientName || 'sftp';
     this.endCalled = false;
     this.errorHandled = false;
     this.closeHandled = false;
     this.endHandled = false;
-    this.remotePathSep = '/';
     this.remotePlatform = 'unix';
     this.debug = undefined;
-
-    this.client.on('close', () => {
-      if (this.endCalled || this.closeHandled) {
-        // we are processing an expected end event or close event handled elsewhere
-        this.debugMsg('Global: Ignoring handled close event');
-      } else {
-        this.debugMsg('Global: Handling unexpected close event');
-        this.sftp = undefined;
-      }
-    });
-
-    this.client.on('end', () => {
-      if (this.endCalled || this.endHandled) {
-        // end event expected or handled elsewhere
-        this.debugMsg('Global: Ignoring hanlded end event');
-      } else {
-        this.debugMsg('Global: Handling unexpected end event');
-        this.sftp = undefined;
-      }
-    });
-
-    this.client.on('error', (err) => {
-      if (this.endCalled || this.errorHandled) {
-        // error event expected or handled elsewhere
-        this.debugMsg('Global: Ignoring handled error');
-      } else {
-        this.debugMsg(`Global; Handling unexpected error; ${err.message}`);
-        this.sftp = undefined;
-        console.log(
-          `ssh2-sftp-client: Unexpected error: ${err.message}. Error code: ${err.code}`
-        );
-        //throw fmtError(err, 'Global');
-      }
-    });
+    this.promiseLimit = 10;
+    this.client.on('close', globalListener(this, 'close'));
+    this.client.on('end', globalListener(this, 'end'));
+    this.client.on('error', globalListener(this, 'error'));
   }
 
   debugMsg(msg, obj) {
     if (this.debug) {
       if (obj) {
         this.debug(
-          `CLIENT[${this.clientName}]: ${msg} ${JSON.stringify(obj, null, ' ')}`
+          `CLIENT[${this.clientName}]: ${msg} ${JSON.stringify(obj, null, ' ')}`,
         );
       } else {
         this.debug(`CLIENT[${this.clientName}]: ${msg}`);
       }
     }
+  }
+
+  fmtError(err, name = 'sftp', eCode, retryCount) {
+    let msg = '';
+    let code = '';
+    const retry = retryCount
+      ? ` after ${retryCount} ${retryCount > 1 ? 'attempts' : 'attempt'}`
+      : '';
+
+    if (err === undefined) {
+      msg = `${name}: Undefined error - probably a bug!`;
+      code = errorCode.generic;
+    } else if (typeof err === 'string') {
+      msg = `${name}: ${err}${retry}`;
+      code = eCode || errorCode.generic;
+    } else if (err.custom) {
+      msg = `${name}->${err.message}${retry}`;
+      code = err.code;
+    } else {
+      switch (err.code) {
+        case 'ENOTFOUND': {
+          msg = `${name}: Address lookup failed for host${retry}`;
+          break;
+        }
+        case 'ECONNREFUSED': {
+          msg = `${name}: Remote host refused connection${retry}`;
+          break;
+        }
+        case 'ECONNRESET': {
+          msg = `${name}: Remote host has reset the connection: ${err.message}${retry}`;
+          break;
+        }
+        default: {
+          msg = `${name}: ${err.message}${retry}`;
+        }
+      }
+      code = err.code || errorCode.generic;
+    }
+    const newError = new Error(msg);
+    newError.code = code;
+    newError.custom = true;
+    this.debugMsg(`${newError.message} (${newError.code})`);
+    return newError;
   }
 
   /**
@@ -6777,12 +7277,10 @@ class SftpClient {
    * @param {function} callback - function called when event triggers
    */
   on(eventType, callback) {
-    this.debugMsg(`Adding listener to ${eventType} event`);
     this.client.prependListener(eventType, callback);
   }
 
   removeListener(eventType, callback) {
-    this.debugMsg(`Removing listener from ${eventType} event`);
     this.client.removeListener(eventType, callback);
   }
 
@@ -6799,54 +7297,39 @@ class SftpClient {
    *
    * @param {Object} config - an SFTP configuration object
    *
-   * @return {Promise} which will resolve to an sftp client object
-   *
+   * @return {Promise<Object>} which will resolve to an sftp client object
    */
   getConnection(config) {
-    let doReady;
-    return (
-      new Promise((resolve, reject) => {
-        addTempListeners(this, 'getConnection', reject);
-        this.debugMsg('getConnection: created promise');
-        doReady = () => {
-          this.debugMsg('getConnection: got connection - promise resolved');
-          resolve(true);
-        };
-        this.on('ready', doReady);
+    let doReady, listeners;
+    return new Promise((resolve, reject) => {
+      listeners = addTempListeners(this, 'getConnection', reject);
+      doReady = () => {
+        this.debugMsg('getConnection ready listener: got connection - promise resolved');
+        resolve(true);
+      };
+      this.on('ready', doReady);
+      try {
         this.client.connect(config);
-      })
-        // .catch((err) => {
-        //   return Promise.reject(err);
-        // })
-        .finally(async (resp) => {
-          this.debugMsg('getConnection: finally clause fired');
-          await sleep(500);
-          this.removeListener('ready', doReady);
-          removeTempListeners(this, 'getConnection');
-          this._resetEventFlags();
-          return resp;
-        })
-    );
+      } catch (err) {
+        this.debugMsg(`getConnection: ${err.message}`);
+        reject(err);
+      }
+    }).finally(() => {
+      this.removeListener('ready', doReady);
+      removeTempListeners(this, listeners, 'getConnection');
+    });
   }
 
   getSftpChannel() {
     return new Promise((resolve, reject) => {
-      addTempListeners(this, 'getSftpChannel', reject);
-      this.debugMsg('getSftpChannel: created promise');
       this.client.sftp((err, sftp) => {
         if (err) {
-          this.debugMsg(`getSftpChannel: SFTP Channel Error: ${err.message}`);
-          reject(fmtError(err, 'getSftpChannel', err.code));
+          reject(this.fmtError(err, 'getSftpChannel', err.code));
         } else {
-          this.debugMsg('getSftpChannel: SFTP channel established');
           this.sftp = sftp;
           resolve(sftp);
         }
       });
-    }).finally((resp) => {
-      this.debugMsg('getSftpChannel: finally clause fired');
-      removeTempListeners(this, 'getSftpChannel');
-      this._resetEventFlags();
     });
   }
 
@@ -6859,42 +7342,65 @@ class SftpClient {
    *
    * @param {Object} config - an SFTP configuration object
    *
-   * @return {Promise} which will resolve to an sftp client object
-   *
+   * @return {Promise<Object>} which will resolve to an sftp client object
    */
   async connect(config) {
+    let listeners;
+
     try {
+      listeners = addTempListeners(this, 'connect');
       if (config.debug) {
         this.debug = config.debug;
         this.debugMsg('connect: Debugging turned on');
+        this.debugMsg(`ssh2-sftp-client Version: ${this.version} `, process.versions);
       }
+      this.promiseLimit = config.promiseLimit ?? 10;
       if (this.sftp) {
-        this.debugMsg('connect: Already connected - reject');
-        throw fmtError(
+        throw this.fmtError(
           'An existing SFTP connection is already defined',
           'connect',
-          errorCode.connect
+          errorCode.connect,
         );
       }
-      await promiseRetry(
-        (retry, attempt) => {
+      const retryOpts = {
+        retries: config.retries ?? 1,
+        factor: config.retry_factor ?? 2,
+        minTimeout: config.retry_minTimeout ?? 25000,
+      };
+      await promiseRetry(retryOpts, async (retry, attempt) => {
+        try {
           this.debugMsg(`connect: Connect attempt ${attempt}`);
-          return this.getConnection(config).catch((err) => {
-            this.debugMsg('getConnection retry catch');
-            retry(err);
-          });
-        },
-        {
-          retries: config.retries || 1,
-          factor: config.retry_factor || 2,
-          minTimeout: config.retry_minTimeout || 1000,
+          await this.getConnection(config);
+        } catch (err) {
+          switch (err.code) {
+            case 'ENOTFOUND':
+            case 'ECONNREFUSED':
+            case 'ERR_SOCKET_BAD_PORT': {
+              throw err;
+            }
+            case undefined: {
+              if (
+                err.message.endsWith('All configured authentication methods failed') ||
+                err.message.startsWith('Cannot parse privateKey')
+              ) {
+                throw err;
+              }
+              retry(err);
+              break;
+            }
+            default: {
+              retry(err);
+            }
+          }
         }
-      );
-      await this.getSftpChannel();
+      });
+      const sftp = await this.getSftpChannel();
+      return sftp;
     } catch (err) {
-      this.debugMsg(`connect: Error ${err.message}`);
-      this._resetEventFlags();
-      throw fmtError(err, 'connect');
+      this.end();
+      throw err.custom ? err : this.fmtError(err, 'connect');
+    } finally {
+      removeTempListeners(this, listeners, 'connect');
     }
   }
 
@@ -6907,99 +7413,136 @@ class SftpClient {
    * Returns undefined if the path does not exists.
    *
    * @param {String} remotePath - remote path, may be relative
-   * @returns {Promise} - remote absolute path or undefined
+   * @param {Boolean} addListeners - (Optional) add event listeners. Default = true
+   * @returns {Promise<String>} - remote absolute path or ''
    */
-  realPath(remotePath) {
+  realPath(remotePath, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
-      this.debugMsg(`realPath -> ${remotePath}`);
-      addTempListeners(this, 'realPath', reject);
-      if (haveConnection(this, 'realPath', reject)) {
-        this.sftp.realpath(remotePath, (err, absPath) => {
-          if (err) {
-            this.debugMsg(`realPath Error: ${err.message} Code: ${err.code}`);
-            if (err.code === 2) {
-              resolve('');
-            } else {
-              reject(
-                fmtError(`${err.message} ${remotePath}`, 'realPath', err.code)
-              );
-            }
-          }
-          this.debugMsg(`realPath <- ${absPath}`);
-          resolve(absPath);
-        });
+      if (addListeners) {
+        listeners = addTempListeners(this, 'realPath', reject);
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'realPath');
-      this._resetEventFlags();
-      return rsp;
+      this.debugMsg(`realPath -> ${remotePath}`);
+      this.sftp.realpath(remotePath, (err, absPath) => {
+        if (err) {
+          if (err.code === 2) {
+            this.debugMsg('realPath <- ""');
+            resolve('');
+          } else {
+            this.debugMsg(`${err.message} ${remotePath}`, 'realPath');
+            reject(this.fmtError(`${err.message} ${remotePath}`, 'realPath', err.code));
+          }
+        }
+        this.debugMsg(`realPath <- ${absPath}`);
+        resolve(absPath);
+      });
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'realPath');
+      }
     });
   }
 
+  /**
+   * @async
+   *
+   * Return the current workding directory path
+   *
+   * @returns {Promise<String>} - current remote working directory
+   */
   cwd() {
     return this.realPath('.');
   }
 
   /**
-   * Retrieves attributes for path
+   * Retrieves attributes for path using cmd, which is either
+   * this.sftp.stat or this.sftp.lstat
    *
+   * @param {Function} cmd - either this.sftp.stat or this.sftp.lstat
    * @param {String} remotePath - a string containing the path to a file
-   * @return {Promise} stats - attributes info
+   * @param {Boolean} addListeners - (Optional) if true add event listeners. Default true.
+   * @return {Promise<Object>} stats - attributes info
+   */
+  _xstat(cmd, aPath, addListeners = true) {
+    let listeners;
+    return new Promise((resolve, reject) => {
+      const cb = (err, stats) => {
+        if (err) {
+          if (err.code === 2 || err.code === 4) {
+            reject(this.fmtError(`No such file: ${aPath}`, '_xstat', errorCode.notexist));
+          } else {
+            reject(this.fmtError(`${err.message} ${aPath}`, '_xstat', err.code));
+          }
+        } else {
+          const result = {
+            mode: stats.mode,
+            uid: stats.uid,
+            gid: stats.gid,
+            size: stats.size,
+            accessTime: stats.atime * 1000,
+            modifyTime: stats.mtime * 1000,
+            isDirectory: stats.isDirectory(),
+            isFile: stats.isFile(),
+            isBlockDevice: stats.isBlockDevice(),
+            isCharacterDevice: stats.isCharacterDevice(),
+            isSymbolicLink: stats.isSymbolicLink(),
+            isFIFO: stats.isFIFO(),
+            isSocket: stats.isSocket(),
+          };
+          this.debugMsg('_xstat: result = ', result);
+          resolve(result);
+        }
+      };
+      if (addListeners) {
+        listeners = addTempListeners(this, '_xstat', reject);
+      }
+      if (cmd === 'stat') {
+        this.sftp.stat(aPath, cb);
+      } else {
+        this.sftp.lstat(aPath, cb);
+      }
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_xstat');
+      }
+    });
+  }
+
+  /*
+   * Use the stat command to obtain attributes associated with a remote path.
+   * THe difference between stat and lstat is that stat, in the case of symbolic
+   * links, will return the attributes associated with the target of the link. With
+   * lstat, attributes associated with the symbolic link rather than the target are
+   * returned.
+   *
+   * @param {String} remotePath - path to an object on the remote server
+   * @return {Promise<Object>} stats - attributes info
    */
   async stat(remotePath) {
-    const _stat = (aPath) => {
-      return new Promise((resolve, reject) => {
-        this.debugMsg(`_stat: ${aPath}`);
-        addTempListeners(this, '_stat', reject);
-        this.sftp.stat(aPath, (err, stats) => {
-          if (err) {
-            this.debugMsg(`_stat: Error ${err.message} code: ${err.code}`);
-            if (err.code === 2 || err.code === 4) {
-              reject(
-                fmtError(
-                  `No such file: ${remotePath}`,
-                  '_stat',
-                  errorCode.notexist
-                )
-              );
-            } else {
-              reject(
-                fmtError(`${err.message} ${remotePath}`, '_stat', err.code)
-              );
-            }
-          } else {
-            let result = {
-              mode: stats.mode,
-              uid: stats.uid,
-              gid: stats.gid,
-              size: stats.size,
-              accessTime: stats.atime * 1000,
-              modifyTime: stats.mtime * 1000,
-              isDirectory: stats.isDirectory(),
-              isFile: stats.isFile(),
-              isBlockDevice: stats.isBlockDevice(),
-              isCharacterDevice: stats.isCharacterDevice(),
-              isSymbolicLink: stats.isSymbolicLink(),
-              isFIFO: stats.isFIFO(),
-              isSocket: stats.isSocket(),
-            };
-            this.debugMsg('_stat: stats <- ', result);
-            resolve(result);
-          }
-        });
-      }).finally((rsp) => {
-        removeTempListeners(this, 'stat');
-        return rsp;
-      });
-    };
-
     try {
       haveConnection(this, 'stat');
-      let absPath = await normalizeRemotePath(this, remotePath);
-      return _stat(absPath);
+      return await this._xstat('stat', remotePath);
     } catch (err) {
-      this._resetEventFlags();
-      throw err.custom ? err : fmtError(err, 'stat', err.code);
+      throw err.custom ? err : this.fmtError(err, 'stat', err.code);
+    }
+  }
+
+  /*
+   * Use the lstat command to obtain attributes associated with a remote path.
+   * THe difference between stat and lstat is that stat, in the case of symbolic
+   * links, will return the attributes associated with the target of the link. With
+   * lstat, attributes associated with the symbolic link rather than the target are
+   * returned.
+   *
+   * @param {String} remotePath - path to an object on the remote server
+   * @return {Promise<Object>} stats - attributes info
+   */
+  async lstat(remotePath) {
+    try {
+      haveConnection(this, 'lstat');
+      return await this._xstat('lstat', remotePath);
+    } catch (err) {
+      throw err.custom ? err : this.fmtError(err, 'lstat', err.code);
     }
   }
 
@@ -7011,51 +7554,31 @@ class SftpClient {
    *
    * @param {string} remotePath - path to the object on the sftp server.
    *
-   * @return {Promise} returns false if object does not exist. Returns type of
+   * @return {Promise<Boolean|String>} returns false if object does not exist. Returns type of
    *                   object if it does
    */
   async exists(remotePath) {
+    this.debugMsg(`exists: remotePath = ${remotePath}`);
     try {
-      if (haveConnection(this, 'exists')) {
-        if (remotePath === '.') {
-          this.debugMsg('exists: . = d');
-          return 'd';
-        }
-        let absPath = await normalizeRemotePath(this, remotePath);
-        try {
-          this.debugMsg(`exists: ${remotePath} -> ${absPath}`);
-          let info = await this.stat(absPath);
-          this.debugMsg('exists: <- ', info);
-          if (info.isDirectory) {
-            this.debugMsg(`exists: ${remotePath} = d`);
-            return 'd';
-          }
-          if (info.isSymbolicLink) {
-            this.debugMsg(`exists: ${remotePath} = l`);
-            return 'l';
-          }
-          if (info.isFile) {
-            this.debugMsg(`exists: ${remotePath} = -`);
-            return '-';
-          }
-          this.debugMsg(`exists: ${remotePath} = false`);
-          return false;
-        } catch (err) {
-          if (err.code === errorCode.notexist) {
-            this.debugMsg(
-              `exists: ${remotePath} = false errorCode = ${err.code}`
-            );
-            return false;
-          }
-          this.debugMsg(`exists: throw error ${err.message} ${err.code}`);
-          throw err;
-        }
+      if (remotePath === '.') {
+        return 'd';
       }
-      this.debugMsg(`exists: default ${remotePath} = false`);
-      return false;
+      const info = await this.lstat(remotePath);
+      this.debugMsg('exists: <- ', info);
+      if (info.isDirectory) {
+        return 'd';
+      } else if (info.isSymbolicLink) {
+        return 'l';
+      } else if (info.isFile) {
+        return '-';
+      } else {
+        return false;
+      }
     } catch (err) {
-      this._resetEventFlags();
-      throw err.custom ? err : fmtError(err, 'exists', err.code);
+      if (err.code === errorCode.notexist) {
+        return false;
+      }
+      throw err.custom ? err : this.fmtError(err.message, 'exists', err.code);
     }
   }
 
@@ -7065,63 +7588,55 @@ class SftpClient {
    * List contents of a remote directory. If a pattern is provided,
    * filter the results to only include files with names that match
    * the supplied pattern. Return value is an array of file entry
-   * objects that include properties for type, name, size, modifiyTime,
+   * objects that include properties for type, name, size, modifyTime,
    * accessTime, rights {user, group other}, owner and group.
    *
    * @param {String} remotePath - path to remote directory
-   * @param {RegExp} pattern - regular expression to match filenames
-   * @returns {Promise} array of file description objects
-   * @throws {Error}
+   * @param {function} filter - a filter function used to select return entries
+   * @param {Boolean} addListeners - (Optional) if true, add listeners. Default true
+   * @returns {Promise<Array>} array of file description objects
    */
-  list(remotePath, pattern = /.*/) {
+  list(remotePath, filter, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, 'list', reject);
+      }
       if (haveConnection(this, 'list', reject)) {
-        const reg = /-/gi;
-        this.debugMsg(`list: ${remotePath} filter: ${pattern}`);
-        addTempListeners(this, 'list', reject);
         this.sftp.readdir(remotePath, (err, fileList) => {
           if (err) {
-            this.debugMsg(`list: Error ${err.message} code: ${err.code}`);
-            reject(fmtError(`${err.message} ${remotePath}`, 'list', err.code));
+            reject(this.fmtError(`${err.message} ${remotePath}`, 'list', err.code));
           } else {
-            let newList = [];
-            // reset file info
-            if (fileList) {
-              newList = fileList.map((item) => {
-                return {
-                  type: item.longname.substr(0, 1),
-                  name: item.filename,
-                  size: item.attrs.size,
-                  modifyTime: item.attrs.mtime * 1000,
-                  accessTime: item.attrs.atime * 1000,
-                  rights: {
-                    user: item.longname.substr(1, 3).replace(reg, ''),
-                    group: item.longname.substr(4, 3).replace(reg, ''),
-                    other: item.longname.substr(7, 3).replace(reg, ''),
-                  },
-                  owner: item.attrs.uid,
-                  group: item.attrs.gid,
-                };
-              });
-            }
-            // provide some compatibility for auxList
-            let regex;
-            if (pattern instanceof RegExp) {
-              regex = pattern;
+            const reg = /-/gi;
+            const newList = fileList.map((item) => {
+              return {
+                type: item.longname.slice(0, 1),
+                name: item.filename,
+                size: item.attrs.size,
+                modifyTime: item.attrs.mtime * 1000,
+                accessTime: item.attrs.atime * 1000,
+                rights: {
+                  user: item.longname.slice(1, 4).replaceAll(reg, ''),
+                  group: item.longname.slice(4, 7).replaceAll(reg, ''),
+                  other: item.longname.slice(7, 10).replaceAll(reg, ''),
+                },
+                owner: item.attrs.uid,
+                group: item.attrs.gid,
+                longname: item.longname,
+              };
+            });
+            if (filter) {
+              resolve(newList.filter((item) => filter(item)));
             } else {
-              let newPattern = pattern.replace(/\*([^*])*?/gi, '.*');
-              regex = new RegExp(newPattern);
+              resolve(newList);
             }
-            let filteredList = newList.filter((item) => regex.test(item.name));
-            this.debugMsg('list: result: ', filteredList);
-            resolve(filteredList);
           }
         });
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'list');
-      this._resetEventFlags();
-      return rsp;
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'list');
+      }
     });
   }
 
@@ -7137,94 +7652,85 @@ class SftpClient {
    * @param {string|stream|undefined} dst - data destination
    * @param {Object} options - options object with supported properties of readStreamOptions,
    *                          writeStreamOptions and pipeOptions.
+   * @param {Boolean} addListeners - (Optional) if true, add listeners. Default true
    *
-   * @return {Promise}
+   * *Important Note*: The ability to set ''autoClose' on read/write streams and 'end' on pipe() calls
+   * is no longer supported. New methods 'createReadStream()' and 'createWriteStream()' have been
+   * added to support low-level access to stream objects.
+   *
+   * @return {Promise<String|Stream|Buffer>}
    */
-  get(
-    remotePath,
-    dst,
-    options = { readStreamOptions: {}, writeStreamOptions: {}, pipeOptions: {} }
-  ) {
-    let rdr, wtr;
-
+  get(remotePath, dst, options, addListeners = true) {
+    let listeners, rdr, wtr;
     return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, 'get', reject);
+      }
       if (haveConnection(this, 'get', reject)) {
-        this.debugMsg(`get -> ${remotePath} `, options);
-        addTempListeners(this, 'get', reject);
-        rdr = this.sftp.createReadStream(
-          remotePath,
-          options.readStreamOptions ? options.readStreamOptions : {}
-        );
+        options = {
+          readStreamOptions: { ...options?.readStreamOptions, autoClose: true },
+          writeStreamOptions: {
+            ...options?.writeStreamOptions,
+            autoClose: true,
+          },
+          pipeOptions: { ...options?.pipeOptions, end: true },
+        };
+        rdr = this.sftp.createReadStream(remotePath, options.readStreamOptions);
         rdr.once('error', (err) => {
-          reject(fmtError(`${err.message} ${remotePath}`, 'get', err.code));
+          if (dst && typeof dst !== 'string' && !dst.destroyed) {
+            dst.destroy();
+          }
+          reject(this.fmtError(`${err.message} ${remotePath}`, 'get', err.code));
         });
         if (dst === undefined) {
           // no dst specified, return buffer of data
-          this.debugMsg('get returning buffer of data');
+          this.debugMsg('get resolving buffer of data');
           wtr = concat((buff) => {
-            //rdr.removeAllListeners('error');
             resolve(buff);
           });
-        } else {
-          if (typeof dst === 'string') {
-            // dst local file path
-            this.debugMsg('get returning local file');
-            const localCheck = haveLocalCreate(dst);
-            if (!localCheck.status) {
-              return reject(
-                fmtError(
-                  `Bad path: ${dst}: ${localCheck.details}`,
-                  'get',
-                  localCheck.code
-                )
-              );
-            }
-            wtr = fs.createWriteStream(
-              dst,
-              options.writeStreamOptions ? options.writeStreamOptions : {}
-            );
+        } else if (typeof dst === 'string') {
+          // dst local file path
+          this.debugMsg('get returning local file');
+          const localCheck = haveLocalCreate(dst);
+          if (localCheck.status) {
+            wtr = fs.createWriteStream(dst, options.writeStreamOptions);
           } else {
-            this.debugMsg('get returning data into supplied stream');
-            wtr = dst;
-          }
-          wtr.once('error', (err) => {
             reject(
-              fmtError(
-                `${err.message} ${typeof dst === 'string' ? dst : ''}`,
+              this.fmtError(
+                `Bad path: ${dst}: ${localCheck.details}`,
                 'get',
-                err.code
-              )
+                localCheck.code,
+              ),
             );
-          });
-          rdr.once('end', () => {
-            if (typeof dst === 'string') {
-              resolve(dst);
-            } else {
-              resolve(wtr);
-            }
-          });
+          }
+        } else {
+          this.debugMsg('get: returning data into supplied stream');
+          wtr = dst;
         }
-        rdr.pipe(wtr, options.pipeOptions ? options.pipeOptions : {});
+        wtr.once('error', (err) => {
+          reject(
+            this.fmtError(
+              `${err.message} ${typeof dst === 'string' ? dst : '<stream>'}`,
+              'get',
+              err.code,
+            ),
+          );
+        });
+        rdr.once('end', () => {
+          if (typeof dst === 'string') {
+            this.debugMsg('get: resolving with dst filename');
+            resolve(dst);
+          } else if (dst !== undefined) {
+            this.debugMsg('get: resolving with writer stream object');
+            resolve(wtr);
+          }
+        });
+        rdr.pipe(wtr, options.pipeOptions);
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'get');
-      this._resetEventFlags();
-      if (
-        rdr &&
-        options.readStreamOptions &&
-        options.readStreamOptions.autoClose === false
-      ) {
-        rdr.destroy();
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'get');
       }
-      if (
-        wtr &&
-        options.writeStreamOptions &&
-        options.writeStreamOptions.autoClose === false &&
-        typeof dst === 'string'
-      ) {
-        wtr.destroy();
-      }
-      return rsp;
     });
   }
 
@@ -7233,54 +7739,54 @@ class SftpClient {
    * Downloads a file at remotePath to localPath using parallel reads
    * for faster throughput.
    *
-   * See 'fastGet' at
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * WARNING: The functionality of fastGet is heavily dependent on the capabilities
+   * of the remote SFTP server. Not all sftp server support or fully support this
+   * functionality. See the Platform Quirks & Warnings section of the README.
    *
    * @param {String} remotePath
    * @param {String} localPath
    * @param {Object} options
-   * @return {Promise} the result of downloading the file
+   * @return {Promise<String>} the result of downloading the file
    */
+  _fastGet(rPath, lPath, opts, addListeners = true) {
+    let listeners;
+    return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, '_fastGet', reject);
+      }
+      if (haveConnection(this, '_fastGet', reject)) {
+        this.sftp.fastGet(rPath, lPath, opts, (err) => {
+          if (err) {
+            reject(this.fmtError(`${err.message} Remote: ${rPath} Local: ${lPath}`));
+          }
+          resolve(`${rPath} was successfully download to ${lPath}!`);
+        });
+      }
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_fastGet');
+      }
+    });
+  }
+
   async fastGet(remotePath, localPath, options) {
     try {
       const ftype = await this.exists(remotePath);
       if (ftype !== '-') {
-        const msg =
-          ftype === false
-            ? `No such file ${remotePath}`
-            : `Not a regular file ${remotePath}`;
-        let err = new Error(msg);
-        err.code = errorCode.badPath;
-        throw err;
+        const msg = `${ftype ? 'Not a regular file' : 'No such file '} ${remotePath}`;
+        throw this.fmtError(msg, 'fastGet', errorCode.badPath);
       }
       const localCheck = haveLocalCreate(localPath);
       if (!localCheck.status) {
-        let err = new Error(`Bad path: ${localPath}: ${localCheck.details}`);
-        err.code = errorCode.badPath;
-        throw err;
+        throw this.fmtError(
+          `Bad path: ${localPath}: ${localCheck.details}`,
+          'fastGet',
+          errorCode.badPath,
+        );
       }
-      await new Promise((resolve, reject) => {
-        if (haveConnection(this, 'fastGet', reject)) {
-          this.debugMsg(
-            `fastGet -> remote: ${remotePath} local: ${localPath} `,
-            options
-          );
-          addTempListeners(this, 'fastGet', reject);
-          this.sftp.fastGet(remotePath, localPath, options, (err) => {
-            if (err) {
-              this.debugMsg(`fastGet error ${err.message} code: ${err.code}`);
-              reject(err);
-            }
-            resolve(`${remotePath} was successfully download to ${localPath}!`);
-          });
-        }
-      }).finally((rsp) => {
-        removeTempListeners(this, 'fastGet');
-        return rsp;
-      });
+      return await this._fastGet(remotePath, localPath, options);
     } catch (err) {
-      this._resetEventFlags();
-      throw fmtError(err, 'fastGet');
+      throw this.fmtError(err, 'fastGet');
     }
   }
 
@@ -7292,58 +7798,64 @@ class SftpClient {
    * See 'fastPut' at
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    *
-   * @param {String} localPath
-   * @param {String} remotePath
-   * @param {Object} options
-   * @return {Promise} the result of downloading the file
+   * WARNING: The fastPut functionality is heavily dependent on the capabilities of
+   * the remote sftp server. Many sftp servers do not support or do not fully support this
+   * functionality. See the Platform Quirks & Warnings section of the README for more details.
+   *
+   * @param {String} localPath - path to local file to put
+   * @param {String} remotePath - destination path for put file
+   * @param {Object} options - additonal fastPut options
+   * @param {Boolean} addListeners - (Optional) if true, add listeners. Default true.
+   * @return {Promise<String>} the result of downloading the file
    */
-  fastPut(localPath, remotePath, options) {
-    this.debugMsg(`fastPut -> local ${localPath} remote ${remotePath}`);
+  _fastPut(lPath, rPath, opts, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
-      const localCheck = haveLocalAccess(localPath);
-      if (!localCheck.status) {
-        reject(
-          fmtError(
-            `Bad path: ${localPath}: ${localCheck.details}`,
-            'fastPut',
-            localCheck.code
-          )
-        );
-      } else if (localCheck.status && localExists(localPath) === 'd') {
-        reject(
-          fmtError(
-            `Bad path: ${localPath} not a regular file`,
-            'fastPut',
-            errorCode.badPath
-          )
-        );
-      } else if (haveConnection(this, 'fastPut', reject)) {
-        this.debugMsg(
-          `fastPut -> local: ${localPath} remote: ${remotePath} opts: ${JSON.stringify(
-            options
-          )}`
-        );
-        addTempListeners(this, 'fastPut', reject);
-        this.sftp.fastPut(localPath, remotePath, options, (err) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, '_fastPut', reject);
+      }
+      if (haveConnection(this, '_fastPut', reject)) {
+        this.sftp.fastPut(lPath, rPath, opts, (err) => {
           if (err) {
-            this.debugMsg(`fastPut error ${err.message} ${err.code}`);
             reject(
-              fmtError(
-                `${err.message} Local: ${localPath} Remote: ${remotePath}`,
+              this.fmtError(
+                `${err.message} Local: ${lPath} Remote: ${rPath}`,
                 'fastPut',
-                err.code
-              )
+                err.code,
+              ),
             );
           }
-          this.debugMsg('fastPut file transferred');
-          resolve(`${localPath} was successfully uploaded to ${remotePath}!`);
+          resolve(`${lPath} was successfully uploaded to ${rPath}!`);
         });
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'fastPut');
-      this._resetEventFlags();
-      return rsp;
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_fastPut');
+      }
     });
+  }
+
+  async fastPut(localPath, remotePath, options) {
+    try {
+      this.debugMsg(`fastPut -> local ${localPath} remote ${remotePath}`);
+      const localCheck = haveLocalAccess(localPath);
+      if (!localCheck.status) {
+        throw this.fmtError(
+          `Bad path: ${localPath}: ${localCheck.details}`,
+          'fastPut',
+          localCheck.code,
+        );
+      } else if (localCheck.status && localExists(localPath) === 'd') {
+        throw this.fmtError(
+          `Bad path: ${localPath} not a regular file`,
+          'fastgPut',
+          errorCode.badPath,
+        );
+      }
+      return await this._fastPut(localPath, remotePath, options);
+    } catch (e) {
+      throw e.custom ? e : this.fmtError(e.message, 'fastPut', e.code);
+    }
   }
 
   /**
@@ -7356,92 +7868,83 @@ class SftpClient {
    * @param  {Object} options - options used for read, write stream and pipe configuration
    *                            value supported by node. Allowed properties are readStreamOptions,
    *                            writeStreamOptions and pipeOptions.
-   * @return {Promise}
+   *
+   * *Important Note*: The ability to set ''autoClose' on read/write streams and 'end' on pipe() calls
+   * is no longer supported. New methods 'createReadStream()' and 'createWriteStream()' have been
+   * added to support low-level access to stream objects.
+   *
+   * @return {Promise<String>}
    */
-  put(
-    localSrc,
-    remotePath,
-    options = { readStreamOptions: {}, writeStreamOptions: {}, pipeOptions: {} }
-  ) {
-    let wtr, rdr;
-
+  _put(lPath, rPath, opts, addListeners = true) {
+    let listeners, wtr, rdr;
     return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, '_put', reject);
+      }
+      opts = {
+        readStreamOptions: { ...opts?.readStreamOptions, autoClose: true },
+        writeStreamOptions: { ...opts?.writeStreamOptions, autoClose: true },
+        pipeOptions: { ...opts?.pipeOptions, end: true },
+      };
+      if (haveConnection(this, '_put', reject)) {
+        wtr = this.sftp.createWriteStream(rPath, opts.writeStreamOptions);
+        wtr.once('error', (err) => {
+          reject(
+            this.fmtError(
+              `Write stream error: ${err.message} ${rPath}`,
+              '_put',
+              err.code,
+            ),
+          );
+        });
+        wtr.once('close', () => {
+          resolve(`Uploaded data stream to ${rPath}`);
+        });
+        if (lPath instanceof Buffer) {
+          this.debugMsg('put source is a buffer');
+          wtr.end(lPath);
+        } else {
+          rdr =
+            typeof lPath === 'string'
+              ? fs.createReadStream(lPath, opts.readStreamOptions)
+              : lPath;
+          rdr.once('error', (err) => {
+            reject(
+              this.fmtError(
+                `Read stream error: ${err.message} ${
+                  typeof lPath === 'string' ? lPath : '<stream>'
+                }`,
+                '_put',
+                err.code,
+              ),
+            );
+          });
+          rdr.pipe(wtr, opts.pipeOptions);
+        }
+      }
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_put');
+      }
+    });
+  }
+
+  async put(localSrc, remotePath, options) {
+    try {
       if (typeof localSrc === 'string') {
         const localCheck = haveLocalAccess(localSrc);
         if (!localCheck.status) {
-          this.debugMsg(`put: local source check error ${localCheck.details}`);
-          return reject(
-            fmtError(
-              `Bad path: ${localSrc}: ${localCheck.details}`,
-              'put',
-              localCheck.code
-            )
+          throw this.fmtError(
+            `Bad path: ${localSrc} ${localCheck.details}`,
+            'put',
+            localCheck.code,
           );
         }
       }
-      if (haveConnection(this, 'put')) {
-        addTempListeners(this, 'put', reject);
-        wtr = this.sftp.createWriteStream(
-          remotePath,
-          options.writeStreamOptions ? options.writeStreamOptions : {}
-        );
-        wtr.once('error', (err) => {
-          this.debugMsg(`put: write stream error ${err.message}`);
-          reject(fmtError(`${err.message} ${remotePath}`, 'put', err.code));
-        });
-        wtr.once('finish', () => {
-          this.debugMsg('put: promise resolved');
-          resolve(`Uploaded data stream to ${remotePath}`);
-        });
-        if (localSrc instanceof Buffer) {
-          this.debugMsg('put source is a buffer');
-          wtr.end(localSrc);
-        } else {
-          if (typeof localSrc === 'string') {
-            this.debugMsg(`put source is a file path: ${localSrc}`);
-            rdr = fs.createReadStream(
-              localSrc,
-              options.readStreamOptions ? options.readStreamOptions : {}
-            );
-          } else {
-            this.debugMsg('put source is a stream');
-            rdr = localSrc;
-          }
-          rdr.once('error', (err) => {
-            this.debugMsg(`put: read stream error ${err.message}`);
-            reject(
-              fmtError(
-                `${err.message} ${
-                  typeof localSrc === 'string' ? localSrc : ''
-                }`,
-                'put',
-                err.code
-              )
-            );
-          });
-          rdr.pipe(wtr, options.pipeOptions ? options.pipeOptions : {});
-        }
-      }
-    }).finally((resp) => {
-      removeTempListeners(this, 'put');
-      this._resetEventFlags();
-      if (
-        rdr &&
-        options.readStreamOptions &&
-        options.readStreamOptions.autoClose === false &&
-        typeof localSrc === 'string'
-      ) {
-        rdr.destroy();
-      }
-      if (
-        wtr &&
-        options.writeStreamOptions &&
-        options.writeStreamOptions.autoClose === false
-      ) {
-        wtr.destroy();
-      }
-      return resp;
-    });
+      return await this._put(localSrc, remotePath, options);
+    } catch (e) {
+      throw e.custom ? e : this.fmtError(`Re-thrown: ${e.message}`, 'put', e.code);
+    }
   }
 
   /**
@@ -7450,50 +7953,59 @@ class SftpClient {
    * @param  {Buffer|stream} input
    * @param  {String} remotePath
    * @param  {Object} options
-   * @return {Promise}
+   * @return {Promise<String>}
    */
-  append(input, remotePath, options = {}) {
-    return this.exists(remotePath).then((fileType) => {
-      if (fileType && fileType === 'd') {
-        return Promise.reject(
-          fmtError(
-            `Bad path: ${remotePath}: cannot append to a directory`,
-            'append',
-            errorCode.badPath
-          )
+  _append(input, rPath, opts, addListeners = true) {
+    let listeners;
+    return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, '_append', reject);
+      }
+      if (haveConnection(this, '_append', reject)) {
+        this.debugMsg(`append -> remote: ${rPath} `, opts);
+        opts.flags = 'a';
+        const stream = this.sftp.createWriteStream(rPath, opts);
+        stream.on('error', (err) => {
+          reject(this.fmtError(`${err.message} ${rPath}`, 'append', err.code));
+        });
+        stream.on('close', () => {
+          resolve(`Appended data to ${rPath}`);
+        });
+        if (input instanceof Buffer) {
+          stream.write(input);
+          stream.end();
+        } else {
+          input.pipe(stream);
+        }
+      }
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_append');
+      }
+    });
+  }
+
+  async append(input, remotePath, options = {}) {
+    try {
+      if (typeof input === 'string') {
+        throw this.fmtError(
+          'Cannot append one file to another',
+          'append',
+          errorCode.badPath,
         );
       }
-      return new Promise((resolve, reject) => {
-        if (haveConnection(this, 'append', reject)) {
-          if (typeof input === 'string') {
-            reject(fmtError('Cannot append one file to another', 'append'));
-          } else {
-            this.debugMsg(`append -> remote: ${remotePath} `, options);
-            addTempListeners(this, 'append', reject);
-            options.flags = 'a';
-            let stream = this.sftp.createWriteStream(remotePath, options);
-            stream.on('error', (err) => {
-              reject(
-                fmtError(`${err.message} ${remotePath}`, 'append', err.code)
-              );
-            });
-            stream.on('finish', () => {
-              resolve(`Appended data to ${remotePath}`);
-            });
-            if (input instanceof Buffer) {
-              stream.write(input);
-              stream.end();
-            } else {
-              input.pipe(stream);
-            }
-          }
-        }
-      }).finally((rsp) => {
-        removeTempListeners(this, 'append');
-        this._resetEventFlags();
-        return rsp;
-      });
-    });
+      const fileType = await this.exists(remotePath);
+      if (fileType && fileType === 'd') {
+        throw this.fmtError(
+          `Bad path: ${remotePath}: cannot append to a directory`,
+          'append',
+          errorCode.badPath,
+        );
+      }
+      await this._append(input, remotePath, options);
+    } catch (e) {
+      throw e.custom ? e : this.fmtError(e.message, 'append', e.code);
+    }
   }
 
   /**
@@ -7503,62 +8015,90 @@ class SftpClient {
    *
    * @param {string} remotePath - remote directory path.
    * @param {boolean} recursive - if true, recursively create directories
-   * @return {Promise}
+   * @return {Promise<String>}
    */
-  async mkdir(remotePath, recursive = false) {
-    const _mkdir = (p) => {
-      return new Promise((resolve, reject) => {
-        this.debugMsg(`_mkdir: create ${p}`);
-        addTempListeners(this, '_mkdir', reject);
-        this.sftp.mkdir(p, (err) => {
-          if (err) {
-            this.debugMsg(`_mkdir: Error ${err.message} code: ${err.code}`);
-            if (err.code === 4) {
-              //fix for windows dodgy error messages
-              let error = new Error(`Bad path: ${p} permission denied`);
-              error.code = errorCode.badPath;
-              reject(error);
-            } else if (err.code === 2) {
-              let error = new Error(
-                `Bad path: ${p} parent not a directory or not exist`
-              );
-              error.code = errorCode.badPath;
-              reject(error);
-            } else {
-              reject(err);
-            }
-          } else {
-            this.debugMsg('_mkdir: directory created');
-            resolve(`${p} directory created`);
-          }
-        });
-      }).finally((rsp) => {
-        removeTempListeners(this, '_mkdir');
-        this._resetEventFlags();
-        return rsp;
-      });
-    };
-
-    try {
-      haveConnection(this, 'mkdir');
-      let rPath = await normalizeRemotePath(this, remotePath);
-      if (!recursive) {
-        return await _mkdir(rPath);
+  _doMkdir(p, addListeners = true) {
+    let listeners;
+    return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, '_doMkdir', reject);
       }
-      let dir = parse(rPath).dir;
+      this.sftp.mkdir(p, (err) => {
+        if (err) {
+          if (err.code === 4) {
+            //fix for windows dodgy error messages
+            reject(
+              this.fmtError(
+                `Bad path: ${p} permission denied`,
+                '_doMkdir',
+                errorCode.badPath,
+              ),
+            );
+          } else if (err.code === 2) {
+            reject(
+              this.fmtError(
+                `Bad path: ${p} parent not a directory or not exist`,
+                '_doMkdir',
+                errorCode.badPath,
+              ),
+            );
+          } else {
+            reject(this.fmtError(`${err.message} ${p}`, '_doMkdir', err.code));
+          }
+        } else {
+          resolve(`${p} directory created`);
+        }
+      });
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, '_doMkdir');
+      }
+    });
+  }
+
+  async _mkdir(remotePath, recursive) {
+    try {
+      const rPath = await normalizeRemotePath(this, remotePath);
+      const targetExists = await this.exists(rPath);
+      if (targetExists && targetExists !== 'd') {
+        throw this.fmtError(
+          `Bad path: ${rPath} already exists as a file`,
+          '_mkdir',
+          errorCode.badPath,
+        );
+      } else if (targetExists) {
+        return `${rPath} already exists`;
+      }
+      if (!recursive) {
+        return await this._doMkdir(rPath);
+      }
+      const dir = parse(rPath).dir;
       if (dir) {
-        let dirExists = await this.exists(dir);
+        const dirExists = await this.exists(dir);
         if (!dirExists) {
-          await this.mkdir(dir, true);
+          await this._mkdir(dir, true);
         } else if (dirExists !== 'd') {
-          let error = new Error(`Bad path: ${dir} not a directory`);
-          error.code = errorCode.badPath;
-          throw error;
+          throw this.fmtError(
+            `Bad path: ${dir} not a directory`,
+            '_mkdir',
+            errorCode.badPath,
+          );
         }
       }
-      return await _mkdir(rPath);
+      return await this._doMkdir(rPath);
     } catch (err) {
-      throw fmtError(`${err.message}`, 'mkdir', err.code);
+      throw err.custom
+        ? err
+        : this.fmtError(`${err.message} ${remotePath}`, '_mkdir', err.code);
+    }
+  }
+
+  async mkdir(remotePath, recursive = false) {
+    try {
+      haveConnection(this, 'mkdir');
+      return await this._mkdir(remotePath, recursive);
+    } catch (err) {
+      throw this.fmtError(`${err.message}`, 'mkdir', err.code);
     }
   }
 
@@ -7570,49 +8110,87 @@ class SftpClient {
    * @param {string} remotePath - path to directory to be removed
    * @param {boolean} recursive - if true, remove directories/files in target
    *                             directory
-   * @return {Promise}
+   * @return {Promise<String>}
    */
-  async rmdir(remotePath, recursive = false) {
-    const _rmdir = (p) => {
+  async rmdir(remoteDir, recursive = false) {
+    const _rmdir = (dir) => {
+      let listeners;
       return new Promise((resolve, reject) => {
-        this.debugMsg(`rmdir -> ${p}`);
-        addTempListeners(this, 'rmdir', reject);
-        this.sftp.rmdir(p, (err) => {
+        listeners = addTempListeners(this, '_rmdir', reject);
+        this.debugMsg(`_rmdir: dir = ${dir}`);
+        this.sftp.rmdir(dir, (err) => {
           if (err) {
-            this.debugMsg(`rmdir error ${err.message} code: ${err.code}`);
-            reject(fmtError(`${err.message} ${p}`, '_rmdir', err.code));
+            reject(this.fmtError(`${err.message} ${dir}`, 'rmdir', err.code));
           }
           resolve('Successfully removed directory');
         });
-      }).finally((rsp) => {
-        removeTempListeners(this, 'rmdir');
-        return rsp;
+      }).finally(() => {
+        removeTempListeners(this, listeners, '_rmdir');
       });
     };
 
+    const _delFiles = (path, fileList) => {
+      let listeners;
+      return new Promise((resolve, reject) => {
+        listeners = addTempListeners(this, '_delFiles', reject);
+        this.debugMsg(`_delFiles: path = ${path} fileList = ${fileList}`);
+        const pList = [];
+        for (const f of fileList) {
+          pList.push(this.delete(`${path}/${f.name}`, true, false));
+        }
+        resolve(pList);
+      })
+        .then((p) => {
+          return Promise.all(p);
+        })
+        .finally(() => {
+          removeTempListeners(this, listeners, '_delFiles');
+        });
+    };
+
     try {
-      haveConnection(this, 'rmdir');
-      let absPath = await normalizeRemotePath(this, remotePath);
+      this.debugMsg(`rmdir: dir = ${remoteDir} recursive = ${recursive}`);
+      const absPath = await normalizeRemotePath(this, remoteDir);
+      const existStatus = await this.exists(absPath);
+      this.debugMsg(`rmdir: ${absPath} existStatus = ${existStatus}`);
+      if (!existStatus) {
+        throw this.fmtError(
+          `Bad Path: ${remoteDir}: No such directory`,
+          'rmdir',
+          errorCode.badPath,
+        );
+      }
+      if (existStatus !== 'd') {
+        throw this.fmtError(
+          `Bad Path: ${remoteDir}: Not a directory`,
+          'rmdir',
+          errorCode.badPath,
+        );
+      }
       if (!recursive) {
-        return _rmdir(absPath);
+        this.debugMsg('rmdir: non-recursive - just try to remove it');
+        return await _rmdir(absPath);
       }
-      let list = await this.list(absPath);
-      if (list.length) {
-        let files = list.filter((item) => item.type !== 'd');
-        let dirs = list.filter((item) => item.type === 'd');
-        this.debugMsg('rmdir contents (files): ', files);
-        this.debugMsg('rmdir contents (dirs): ', dirs);
-        for (let f of files) {
-          await this.delete(`${absPath}${this.remotePathSep}${f.name}`);
-        }
-        for (let d of dirs) {
-          await this.rmdir(`${absPath}${this.remotePathSep}${d.name}`, true);
-        }
+      const listing = await this.list(absPath);
+      this.debugMsg(`rmdir: listing count = ${listing.length}`);
+      if (!listing.length) {
+        this.debugMsg('rmdir: No sub dir or files, just rmdir');
+        return await _rmdir(absPath);
       }
-      return _rmdir(absPath);
+      const fileList = listing.filter((i) => i.type !== 'd');
+      this.debugMsg(`rmdir: dir content files to remove = ${fileList.length}`);
+      const dirList = listing.filter((i) => i.type === 'd');
+      this.debugMsg(`rmdir: sub-directories to remove = ${dirList.length}`);
+      await _delFiles(absPath, fileList);
+      for (const d of dirList) {
+        await this.rmdir(`${absPath}/${d.name}`, true);
+      }
+      await _rmdir(absPath);
+      return 'Successfully removed directory';
     } catch (err) {
-      this._resetEventFlags();
-      throw err.custom ? err : fmtError(err, 'rmdir', err.code);
+      throw err.custom
+        ? err
+        : this.fmtError(`${err.message} ${remoteDir}`, 'rmdir', err.code);
     }
   }
 
@@ -7624,33 +8202,28 @@ class SftpClient {
    * @param {string} remotePath - path to the file to delete
    * @param {boolean} notFoundOK - if true, ignore errors for missing target.
    *                               Default is false.
-   * @return {Promise} with string 'Successfully deleted file' once resolved
-   *
+   * @return {Promise<String>} with string 'Successfully deleted file' once resolved
    */
-  delete(remotePath, notFoundOK = false) {
+  delete(remotePath, notFoundOK = false, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
-      if (haveConnection(this, 'delete', reject)) {
-        this.debugMsg(`delete -> ${remotePath}`);
-        addTempListeners(this, 'delete', reject);
-        this.sftp.unlink(remotePath, (err) => {
-          if (err) {
-            this.debugMsg(`delete error ${err.message} code: ${err.code}`);
-            if (notFoundOK && err.code === 2) {
-              this.debugMsg('delete ignore missing target error');
-              resolve(`Successfully deleted ${remotePath}`);
-            } else {
-              reject(
-                fmtError(`${err.message} ${remotePath}`, 'delete', err.code)
-              );
-            }
-          }
-          resolve(`Successfully deleted ${remotePath}`);
-        });
+      if (addListeners) {
+        listeners = addTempListeners(this, 'delete', reject);
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'delete');
-      this._resetEventFlags();
-      return rsp;
+      this.sftp.unlink(remotePath, (err) => {
+        if (err) {
+          if (notFoundOK && err.code === 2) {
+            resolve(`Successfully deleted ${remotePath}`);
+          } else {
+            reject(this.fmtError(`${err.message} ${remotePath}`, 'delete', err.code));
+          }
+        }
+        resolve(`Successfully deleted ${remotePath}`);
+      });
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'delete');
+      }
     });
   }
 
@@ -7661,33 +8234,34 @@ class SftpClient {
    *
    * @param {string} fromPath - path to the file to be renamed.
    * @param {string} toPath - path to the new name.
+   * @param {Boolean} addListeners - (Optional) if true, add listeners. Default true
    *
-   * @return {Promise}
-   *
+   * @return {Promise<String>}
    */
-  rename(fromPath, toPath) {
+  rename(fPath, tPath, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, 'rename', reject);
+      }
       if (haveConnection(this, 'rename', reject)) {
-        this.debugMsg(`rename -> ${fromPath} ${toPath}`);
-        addTempListeners(this, 'rename', reject);
-        this.sftp.rename(fromPath, toPath, (err) => {
+        this.sftp.rename(fPath, tPath, (err) => {
           if (err) {
-            this.debugMsg(`rename error ${err.message} code: ${err.code}`);
             reject(
-              fmtError(
-                `${err.message} From: ${fromPath} To: ${toPath}`,
-                'rename',
-                err.code
-              )
+              this.fmtError(
+                `${err.message} From: ${fPath} To: ${tPath}`,
+                '_rename',
+                err.code,
+              ),
             );
           }
-          resolve(`Successfully renamed ${fromPath} to ${toPath}`);
+          resolve(`Successfully renamed ${fPath} to ${tPath}`);
         });
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'rename');
-      this._resetEventFlags();
-      return rsp;
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'rename');
+      }
     });
   }
 
@@ -7699,33 +8273,32 @@ class SftpClient {
    *
    * @param {string} fromPath - path to the file to be renamed.
    * @param {string} toPath - path  the new name.
+   * @param {Boolean} addListeners - (Optional) if true, add listeners. Default true
    *
-   * @return {Promise}
-   *
+   * @return {Promise<String>}
    */
-  posixRename(fromPath, toPath) {
+  posixRename(fPath, tPath, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
+      if (addListeners) {
+        listeners = addTempListeners(this, 'posixRename', reject);
+      }
       if (haveConnection(this, 'posixRename', reject)) {
-        this.debugMsg(`posixRename -> ${fromPath} ${toPath}`);
-        addTempListeners(this, 'posixRename', reject);
-        this.sftp.ext_openssh_rename(fromPath, toPath, (err) => {
+        this.sftp.ext_openssh_rename(fPath, tPath, (err) => {
           if (err) {
-            this.debugMsg(`posixRename error ${err.message} code: ${err.code}`);
             reject(
-              fmtError(
-                `${err.message} From: ${fromPath} To: ${toPath}`,
-                'posixRename',
-                err.code
-              )
+              this.fmtError(
+                `${err.message} From: ${fPath} To: ${tPath}`,
+                '_posixRename',
+                err.code,
+              ),
             );
           }
-          resolve(`Successful POSIX rename ${fromPath} to ${toPath}`);
+          resolve(`Successful POSIX rename ${fPath} to ${tPath}`);
         });
       }
-    }).finally((rsp) => {
-      removeTempListeners(this, 'posixRename');
-      this._resetEventFlags();
-      return rsp;
+    }).finally(() => {
+      removeTempListeners(this, listeners, 'posixRename');
     });
   }
 
@@ -7736,23 +8309,28 @@ class SftpClient {
    *
    * @param {string} remotePath - path to the remote target object.
    * @param {number | string} mode - the new octal mode to set
+   * @param {boolean} addListeners - (Optional) if true, add listeners. Default true.
    *
-   * @return {Promise}
+   * @return {Promise<String>}
    */
-  chmod(remotePath, mode) {
+  chmod(rPath, mode, addListeners = true) {
+    let listeners;
     return new Promise((resolve, reject) => {
-      this.debugMsg(`chmod -> ${remotePath} ${mode}`);
-      addTempListeners(this, 'chmod', reject);
-      this.sftp.chmod(remotePath, mode, (err) => {
-        if (err) {
-          reject(fmtError(`${err.message} ${remotePath}`, 'chmod', err.code));
-        }
-        resolve('Successfully change file mode');
-      });
-    }).finally((rsp) => {
-      removeTempListeners(this, 'chmod');
-      this._resetEventFlags();
-      return rsp;
+      if (addListeners) {
+        listeners = addTempListeners(this, 'chmod', reject);
+      }
+      if (haveConnection(this, 'chmod', reject)) {
+        this.sftp.chmod(rPath, mode, (err) => {
+          if (err) {
+            reject(this.fmtError(`${err.message} ${rPath}`, '_chmod', err.code));
+          }
+          resolve('Successfully change file mode');
+        });
+      }
+    }).finally(() => {
+      if (addListeners) {
+        removeTempListeners(this, listeners, 'chmod');
+      }
     });
   }
 
@@ -7764,55 +8342,118 @@ class SftpClient {
    * server.
    * @param {String} srcDir - local source directory
    * @param {String} dstDir - remote destination directory
-   * @param {RegExp} filter - (Optional) a regular expression used to select
-   *                         files and directories to upload
-   * @returns {String}
-   * @throws {Error}
+   * @param {Object} options - (Optional) An object with 2 supported properties,
+   * 'filter' and 'useFastput'. Filter is a function of two arguments.
+   * The first argument is the full path of a directory entry from the directory
+   * to be uploaded and the second argument is a boolean, which will be true if
+   * the target path is for a directory. If the function returns true, this item
+   * will be uploaded and excluded when it returns false. The 'useFastput' property is a
+   * boolean value. When true, the 'fastPut()' method will be used to upload files. Default
+   * is to use the slower, but more supported 'put()' method.
+   *
+   * @returns {Promise<Array>}
    */
-  async uploadDir(srcDir, dstDir, filter = /.*/) {
-    try {
-      this.debugMsg(`uploadDir -> ${srcDir} ${dstDir}`);
-      const srcType = localExists(srcDir);
-      if (srcType !== 'd') {
-        throw fmtError(
-          `Bad path: ${srcDir}: not a directory`,
-          'uploadDir',
-          errorCode.badPath
+  async uploadDir(srcDir, dstDir, options) {
+    const getRemoteStatus = async (dstDir) => {
+      const absDstDir = await normalizeRemotePath(this, dstDir);
+      const status = await this.exists(absDstDir);
+      if (status && status !== 'd') {
+        throw this.fmtError(
+          `Bad path ${absDstDir} Not a directory`,
+          'getRemoteStatus',
+          errorCode.badPath,
         );
       }
-      haveConnection(this, 'uploadDir');
-      let dstStatus = await this.exists(dstDir);
-      if (dstStatus && dstStatus !== 'd') {
-        throw fmtError(`Bad path ${dstDir}`, 'uploadDir', errorCode.badPath);
+      return { remoteDir: absDstDir, remoteStatus: status };
+    };
+
+    const checkLocalStatus = (srcDir) => {
+      const srcType = localExists(srcDir);
+      if (!srcType) {
+        throw this.fmtError(
+          `Bad path: ${srcDir} not exist`,
+          'getLocalStatus',
+          errorCode.badPath,
+        );
       }
-      if (!dstStatus) {
-        await this.mkdir(dstDir, true);
+      if (srcType !== 'd') {
+        throw this.fmtError(
+          `Bad path: ${srcDir}: not a directory`,
+          'getLocalStatus',
+          errorCode.badPath,
+        );
+      }
+      return srcType;
+    };
+
+    const uploadFiles = async (srcDir, dstDir, fileList, useFastput) => {
+      let listeners = addTempListeners(this, 'uploadFiles');
+
+      try {
+        const uploadList = [];
+        for (const f of fileList) {
+          const src = join(srcDir, f.name);
+          const dst = `${dstDir}/${f.name}`;
+          uploadList.push([src, dst]);
+        }
+        const uploadGroups = partition(uploadList, this.promiseLimit);
+        const func = useFastput ? this._fastPut.bind(this) : this._put.bind(this);
+        const uploadResults = [];
+        for (const group of uploadGroups) {
+          const pList = [];
+          for (const [src, dst] of group) {
+            pList.push(func(src, dst, null, false));
+            this.client.emit('upload', { source: src, destination: dst });
+          }
+          const groupResults = await Promise.all(pList);
+          for (const r of groupResults) {
+            uploadResults.push(r);
+          }
+        }
+        return uploadResults;
+      } catch (e) {
+        throw this.fmtError(`${e.message} ${srcDir} to ${dstDir}`, 'uploadFiles', e.code);
+      } finally {
+        removeTempListeners(this, listeners, uploadFiles);
+      }
+    };
+
+    try {
+      haveConnection(this, 'uploadDir');
+      this.debugMsg(
+        `uploadDir: srcDir = ${srcDir} dstDir = ${dstDir} options = ${options}`,
+      );
+      const { remoteDir, remoteStatus } = await getRemoteStatus(dstDir);
+      this.debugMsg(`uploadDir: remoteDir = ${remoteDir} remoteStatus = ${remoteStatus}`);
+      checkLocalStatus(srcDir);
+      if (!remoteStatus) {
+        await this._mkdir(remoteDir, true);
       }
       let dirEntries = fs.readdirSync(srcDir, {
         encoding: 'utf8',
         withFileTypes: true,
       });
-      dirEntries = dirEntries.filter((item) => filter.test(item.name));
-      for (let e of dirEntries) {
-        if (e.isDirectory()) {
-          let newSrc = join(srcDir, e.name);
-          let newDst = dstDir + this.remotePathSep + e.name;
-          await this.uploadDir(newSrc, newDst, filter);
-        } else if (e.isFile()) {
-          let src = join(srcDir, e.name);
-          let dst = dstDir + this.remotePathSep + e.name;
-          await this.fastPut(src, dst);
-          this.client.emit('upload', { source: src, destination: dst });
-        } else {
-          this.debugMsg(
-            `uploadDir: File ignored: ${e.name} not a regular file`
-          );
-        }
+      this.debugMsg(`uploadDir: dirEntries = ${dirEntries}`);
+      if (options?.filter) {
+        dirEntries = dirEntries.filter((item) =>
+          options.filter(join(srcDir, item.name), item.isDirectory()),
+        );
+      }
+      const dirUploads = dirEntries.filter((item) => item.isDirectory());
+      const fileUploads = dirEntries.filter((item) => !item.isDirectory());
+      this.debugMsg(`uploadDir: dirUploads = ${dirUploads}`);
+      this.debugMsg(`uploadDir: fileUploads = ${fileUploads}`);
+      await uploadFiles(srcDir, remoteDir, fileUploads, options?.useFastput);
+      for (const d of dirUploads) {
+        const src = join(srcDir, d.name);
+        const dst = `${remoteDir}/${d.name}`;
+        await this.uploadDir(src, dst, options);
       }
       return `${srcDir} uploaded to ${dstDir}`;
     } catch (err) {
-      this._resetEventFlags();
-      throw err.custom ? err : fmtError(err, 'uploadDir');
+      throw err.custom
+        ? err
+        : this.fmtError(`${err.message} ${srcDir}`, 'uploadDir', err.code);
     }
   }
 
@@ -7824,83 +8465,254 @@ class SftpClient {
    * file system.
    * @param {String} srcDir - remote source directory
    * @param {String} dstDir - local destination directory
-   * @param {RegExp} filter - (Optional) a regular expression used to select
-   *                         files and directories to upload
-   * @returns {Promise}
-   * @throws {Error}
+   * @param {Object} options - (Optional) Object with 2 supported properties,
+   * 'filter' and 'useFastget'. The filter property is a function of two
+   * arguments. The first argument is the full path of the item to be downloaded
+   * and the second argument is a boolean, which will be true if the target path
+   * is for a directory. If the function returns true, the item will be
+   * downloaded and excluded if teh function returns false.
+   *
+   * @returns {Promise<Array>}
    */
-  async downloadDir(srcDir, dstDir, filter = /.*/) {
-    try {
-      this.debugMsg(`downloadDir -> ${srcDir} ${dstDir}`);
-      haveConnection(this, 'downloadDir');
-      let fileList = await this.list(srcDir, filter);
-      const localCheck = haveLocalCreate(dstDir);
-      if (!localCheck.status && localCheck.details === 'permission denied') {
-        throw fmtError(
-          `Bad path: ${dstDir}: ${localCheck.details}`,
-          'downloadDir',
-          localCheck.code
-        );
-      } else if (localCheck.status && !localCheck.type) {
-        fs.mkdirSync(dstDir, { recursive: true });
-      } else if (localCheck.status && localCheck.type !== 'd') {
-        throw fmtError(
-          `Bad path: ${dstDir}: not a directory`,
-          'downloadDir',
-          errorCode.badPath
-        );
-      }
-      for (let f of fileList) {
-        if (f.type === 'd') {
-          let newSrc = srcDir + this.remotePathSep + f.name;
-          let newDst = join(dstDir, f.name);
-          await this.downloadDir(newSrc, newDst, filter);
-        } else if (f.type === '-') {
-          let src = srcDir + this.remotePathSep + f.name;
-          let dst = join(dstDir, f.name);
-          await this.fastGet(src, dst);
-          this.client.emit('download', { source: src, destination: dst });
-        } else {
-          this.debugMsg(
-            `downloadDir: File ignored: ${f.name} not regular file`
+  async downloadDir(srcDir, dstDir, options = { filter: null, useFastget: false }) {
+    const getDownloadList = async (srcDir, filter) => {
+      try {
+        const listing = await this.list(srcDir);
+        if (filter) {
+          return listing.filter((item) =>
+            filter(`${srcDir}/${item.name}`, item.type === 'd'),
           );
         }
+        return listing;
+      } catch (err) {
+        throw err.custom ? err : this.fmtError(err.message, '_getDownloadList', err.code);
+      }
+    };
+
+    const prepareDestination = (dst) => {
+      try {
+        const localCheck = haveLocalCreate(dst);
+        if (!localCheck.status && localCheck.details === 'permission denied') {
+          throw this.fmtError(
+            `Bad path: ${dst}: ${localCheck.details}`,
+            'prepareDestination',
+            localCheck.code,
+          );
+        } else if (localCheck.status && !localCheck.type) {
+          fs.mkdirSync(dst, { recursive: true });
+        } else if (localCheck.status && localCheck.type !== 'd') {
+          throw this.fmtError(
+            `Bad path: ${dstDir}: not a directory`,
+            '_prepareDestination',
+            errorCode.badPath,
+          );
+        }
+      } catch (err) {
+        throw err.custom
+          ? err
+          : this.fmtError(err.message, '_prepareDestination', err.code);
+      }
+    };
+
+    const downloadFiles = async (remotePath, localPath, fileList, useFastget) => {
+      let listeners = addTempListeners(this, 'downloadFIles');
+
+      try {
+        const downloadList = [];
+        for (const f of fileList) {
+          const src = `${remotePath}/${f.name}`;
+          const dst = join(localPath, f.name);
+          downloadList.push([src, dst]);
+        }
+        const downloadGroups = partition(downloadList, this.promiseLimit);
+        const func = useFastget ? this._fastGet.bind(this) : this.get.bind(this);
+        const downloadResults = [];
+        for (const group of downloadGroups) {
+          const pList = [];
+          for (const [src, dst] of group) {
+            pList.push(func(src, dst, null, false));
+            this.client.emit('download', { source: src, destination: dst });
+          }
+          const groupResults = await Promise.all(pList);
+          for (const r of groupResults) {
+            downloadResults.push(r);
+          }
+        }
+        return downloadResults;
+      } catch (e) {
+        throw this.fmtError(
+          `${e.message} ${srcDir} to ${dstDir}`,
+          'downloadFiles',
+          e.code,
+        );
+      } finally {
+        removeTempListeners(this, listeners, 'downloadFiles');
+      }
+    };
+
+    try {
+      haveConnection(this, 'downloadDir');
+      const downloadList = await getDownloadList(srcDir, options.filter);
+      prepareDestination(dstDir);
+      const fileDownloads = downloadList.filter((i) => i.type !== 'd');
+      if (fileDownloads.length) {
+        await downloadFiles(srcDir, dstDir, fileDownloads, options.useFastget);
+      }
+      const dirDownloads = downloadList.filter((i) => i.type === 'd');
+      for (const d of dirDownloads) {
+        const src = `${srcDir}/${d.name}`;
+        const dst = join(dstDir, d.name);
+        await this.downloadDir(src, dst, options);
       }
       return `${srcDir} downloaded to ${dstDir}`;
     } catch (err) {
-      this._resetEventFlags();
-      throw err.custom ? err : fmtError(err, 'downloadDir', err.code);
+      throw err.custom
+        ? err
+        : this.fmtError(`${err.message}: ${srcDir}`, 'downloadDir', err.code);
+    }
+  }
+
+  /**
+   * Returns a read stream object. This is a low level method which will return a read stream
+   * connected to the remote file object specified as an argument. Client code is fully responsible
+   * for managing this stream object i.e. adding any necessary listeners and disposing of the object etc.
+   * See the SSH2 sftp documentation for details on possible options which can be used.
+   *
+   * @param {String} remotePath - path to remote file to attach stream to
+   * @param {Object} options - options to pass to the create stream process
+   *
+   * @returns {Object} a read stream object
+   */
+  createReadStream(remotePath, options) {
+    let listeners;
+    try {
+      listeners = addTempListeners(this, 'createReadStream');
+      haveConnection(this, 'createReadStream');
+      const stream = this.sftp.createReadStream(remotePath, options);
+      return stream;
+    } catch (err) {
+      throw err.custom ? err : this.fmtError(err.message, 'createReadStream', err.code);
+    } finally {
+      removeTempListeners(this, listeners, 'createReadStreame');
+    }
+  }
+
+  /**
+   * Create a write stream object connected to a file on the remote sftp server.
+   * This is a low level method which will return a write stream for the remote file specified
+   * in the 'remotePath' argument. Client code to responsible for managing this object once created.
+   * This includes disposing of file handles, setting up any necessary event listeners etc.
+   *
+   * @param {String} remotePath - path to the remote file on the sftp server
+   * @param (Object} options - options to pass to the create write stream process)
+   *
+   * @returns {Object} a stream object
+   */
+  createWriteStream(remotePath, options) {
+    let listeners;
+    try {
+      listeners = addTempListeners(this, 'createWriteStream');
+      haveConnection(this, 'createWriteStream');
+      const stream = this.sftp.createWriteStream(remotePath, options);
+      return stream;
+    } catch (err) {
+      throw err.custom ? err : this.fmtError(err.message, 'createWriteStream', err.code);
+    } finally {
+      removeTempListeners(this, listeners, 'createWriteStream');
     }
   }
 
   /**
    * @async
    *
+   * Make a remote copy of a remote file. Create a copy of a remote file on the remote
+   * server. It is assumed the directory where the copy will be placed already exists.
+   * The destination file must not already exist.
+   *
+   * @param {String} srcPath - path to the remote file to be copied
+   * @param {String} dstPath - destination path for the copy.
+   *
+   * @returns {String}.
+   */
+  _rcopy(srcPath, dstPath) {
+    return new Promise((resolve, reject) => {
+      const ws = this.sftp.createWriteStream(dstPath);
+      const rs = this.sftp.createReadStream(srcPath);
+      ws.on('error', (err) => {
+        reject(this.fmtError(`${err.message} ${dstPath}`, '_rcopy'));
+      });
+      rs.on('error', (err) => {
+        reject(this.fmtError(`${err.message} ${srcPath}`, '_rcopy'));
+      });
+      ws.on('close', () => {
+        resolve(`${srcPath} copied to ${dstPath}`);
+      });
+      rs.pipe(ws);
+    });
+  }
+
+  async rcopy(src, dst) {
+    let listeners;
+    try {
+      listeners = addTempListeners(this, 'rcopy');
+      haveConnection(this, 'rcopy');
+      const srcPath = await normalizeRemotePath(this, src);
+      const srcExists = await this.exists(srcPath);
+      if (!srcExists) {
+        throw this.fmtError(
+          `Source does not exist ${srcPath}`,
+          'rcopy',
+          errorCode.badPath,
+        );
+      }
+      if (srcExists !== '-') {
+        throw this.fmtError(`Source not a file ${srcPath}`, 'rcopy', errorCode.badPath);
+      }
+      const dstPath = await normalizeRemotePath(this, dst);
+      const dstExists = await this.exists(dstPath);
+      if (dstExists) {
+        throw this.fmtError(
+          `Destination already exists ${dstPath}`,
+          'rcopy',
+          errorCode.badPath,
+        );
+      }
+      return this._rcopy(srcPath, dstPath);
+    } catch (err) {
+      throw err.custom ? err : this.fmtError(err, 'rcopy');
+    } finally {
+      removeTempListeners(this, listeners, 'rcopy');
+    }
+  }
+  /**
+   * @async
+   *
    * End the SFTP connection
    *
+   * @returns {Promise<Boolean>}
    */
   end() {
-    let endCloseHandler;
+    let endCloseHandler, listeners;
     return new Promise((resolve, reject) => {
+      listeners = addTempListeners(this, 'end', reject);
       this.endCalled = true;
-      addTempListeners(this, 'end', reject);
       endCloseHandler = () => {
         this.sftp = undefined;
         this.debugMsg('end: Connection closed');
         resolve(true);
       };
       this.on('close', endCloseHandler);
-      if (haveConnection(this, 'end', reject)) {
-        this.debugMsg('end: Have connection - calling end()');
+      if (this.sftp) {
         this.client.end();
+      } else {
+        // no actual connection exists - just resolve
+        this.debugMsg('end: Called when no connection active');
+        resolve(true);
       }
-    }).finally((resp) => {
-      this.debugMsg('end: finally clause fired');
-      removeTempListeners(this, 'end');
+    }).finally(() => {
+      removeTempListeners(this, listeners, 'end');
       this.removeListener('close', endCloseHandler);
       this.endCalled = false;
-      this._resetEventFlags();
-      return resp;
     });
   }
 }
@@ -7910,71 +8722,12 @@ module.exports = SftpClient;
 
 /***/ }),
 
-/***/ 9227:
+/***/ 1762:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
-
-
-const fs = __nccwpck_require__(7147);
-const path = __nccwpck_require__(1017);
-
-const { errorCode } = __nccwpck_require__(7623);
-
-/**
- * Generate a new Error object with a reformatted error message which
- * is a little more informative and useful to users.
- *
- * @param {Error|string} err - The Error object the new error will be based on
- * @param {number} retryCount - For those functions which use retry. Number of
- *                              attempts to complete before giving up
- * @returns {Error} New error with custom error message
- */
-function fmtError(err, name = 'sftp', eCode, retryCount) {
-  let msg = '';
-  let code = '';
-  let retry = retryCount
-    ? ` after ${retryCount} ${retryCount > 1 ? 'attempts' : 'attempt'}`
-    : '';
-
-  if (err === undefined) {
-    msg = `${name}: Undefined error - probably a bug!`;
-    code = errorCode.generic;
-  } else if (typeof err === 'string') {
-    msg = `${name}: ${err}${retry}`;
-    code = eCode ? eCode : errorCode.generic;
-  } else if (err.custom) {
-    msg = `${name}->${err.message}${retry}`;
-    code = err.code;
-  } else {
-    switch (err.code) {
-      case 'ENOTFOUND':
-        msg =
-          `${name}: ${err.level} error. ` +
-          `Address lookup failed for host ${err.hostname}${retry}`;
-        break;
-      case 'ECONNREFUSED':
-        msg =
-          `${name}: ${err.level} error. Remote host at ` +
-          `${err.address} refused connection${retry}`;
-        break;
-      case 'ECONNRESET':
-        msg =
-          `${name}: Remote host has reset the connection: ` +
-          `${err.message}${retry}`;
-        break;
-      default:
-        msg = `${name}: ${err.message}${retry}`;
-    }
-    code = err.code ? err.code : errorCode.generic;
-  }
-  let newError = new Error(msg);
-  newError.code = code;
-  newError.custom = true;
-  return newError;
-}
-
-let tempListeners = [];
+const fs = __nccwpck_require__(7561);
+const path = __nccwpck_require__(9411);
+const { errorCode } = __nccwpck_require__(7505);
 
 /**
  * Simple default error listener. Will reformat the error message and
@@ -7984,80 +8737,90 @@ let tempListeners = [];
  * @throws {Error} Throws new error
  */
 function errorListener(client, name, reject) {
-  let fn = (err) => {
+  const fn = (err) => {
     if (client.endCalled || client.errorHandled) {
-      client.debugMsg(`${name}: Ignoring handled error: ${err.message}`);
+      // error already handled or expected - ignore
+      client.debugMsg(`${name} errorListener - ignoring handled error`);
+      return;
+    }
+    client.errorHandled = true;
+    const newError = new Error(`${name}: ${err.message}`);
+    newError.code = err.code;
+    if (reject) {
+      reject(newError);
     } else {
-      client.debugMsg(`${name}: Handling error: ${err.message}`);
-      client.errorHandled = true;
-      if (reject) {
-        client.debugMsg(`${name}: handled error with reject`);
-        reject(fmtError(err, name, err.code));
-      } else {
-        client.debugMsg(`${name}: handling error with throw`);
-        throw fmtError(err, name, err.code);
-      }
+      throw newError;
     }
   };
-  tempListeners.push(['error', fn]);
   return fn;
 }
 
-function endListener(client, name, reject) {
-  let fn = function () {
-    if (client.endCalled || client.endHandled) {
-      client.debugMsg(`${name}: Ignoring expected end event`);
+function globalListener(client, evt) {
+  return () => {
+    if (client.endCalled || client.errorHandled || client.closeHandled) {
+      // we are processing an expected event handled elsewhere
+      client.debugMsg(`Global ${evt} event: Ignoring expected and handled event`);
     } else {
-      client.debugMsg(`${name}: Handling end event`);
+      client.debugMsg(`Global ${evt} event: Handling unexpected event`);
       client.sftp = undefined;
-      client.endHandled = true;
-      if (reject) {
-        client.debugMsg(`${name}: handling end event with reject'`);
-        reject(fmtError('Unexpected end event raised', name));
-      } else {
-        client.debugMsg(`${name}: handling end event with throw`);
-        throw fmtError('Unexpected end event raised', name);
-      }
     }
   };
-  tempListeners.push(['end', fn]);
+}
+
+function endListener(client, name) {
+  const fn = function () {
+    client.sftp = undefined;
+    if (client.endCalled || client.endHandled || client.errorHandled) {
+      // end event already handled - ignore
+      client.debugMsg(`${name} endListener - handled end event`);
+      return;
+    }
+    client.endHandled = true;
+    client.debugMsg(`${name} Unexpected end event`);
+  };
   return fn;
 }
 
-function closeListener(client, name, reject) {
-  let fn = function () {
-    if (client.endCalled || client.closeHandled) {
-      client.debugMsg(`${name}: ignoring expected close event`);
-    } else {
-      client.debugMsg(`${name}: handling unexpected close event`);
-      client.sftp = undefined;
-      client.closeHandled = true;
-      if (reject) {
-        client.debugMsg(`${name}: handling close event with reject`);
-        reject(fmtError('Unexpected close event raised', name));
-      } else {
-        client.debugMsg(`${name}: handling close event with throw`);
-        throw fmtError('Unexpected close event raised', name);
-      }
+function closeListener(client, name) {
+  const fn = function () {
+    client.sftp = undefined;
+    if (
+      client.endCalled ||
+      client.closeHandled ||
+      client.errorHandled ||
+      client.endHandled
+    ) {
+      // handled or expected close event - ignore
+      client.debugMsg(`${name} closeListener - handled close event`);
+      return;
     }
+    client.closeHandled = true;
+    client.debugMsg(`${name} Unexpected close event`);
   };
-  tempListeners.push(['close', fn]);
   return fn;
 }
 
-function addTempListeners(obj, name, reject) {
-  obj.debugMsg(`${name}: Adding temp event listeners`);
-  obj.client.prependListener('end', endListener(obj, name, reject));
-  obj.client.prependListener('close', closeListener(obj, name, reject));
-  obj.client.prependListener('error', errorListener(obj, name, reject));
+function addTempListeners(client, name, reject) {
+  const listeners = {
+    end: endListener(client, name),
+    close: closeListener(client, name),
+    error: errorListener(client, name, reject),
+  };
+  client.on('end', listeners.end);
+  client.on('close', listeners.close);
+  client.on('error', listeners.error);
+  client._resetEventFlags();
+  return listeners;
 }
 
-function removeTempListeners(obj, name) {
-  obj.debugMsg(`${name}: Removing temp event listeners`);
-  tempListeners.forEach(([e, fn]) => {
-    obj.client.removeListener(e, fn);
-  });
-  tempListeners = [];
+function removeTempListeners(client, listeners, name) {
+  try {
+    client.removeListener('end', listeners.end);
+    client.removeListener('close', listeners.close);
+    client.removeListener('error', listeners.error);
+  } catch (err) {
+    throw new Error(`${name}: Error removing temp listeners: ${err.message}`);
+  }
 }
 
 /**
@@ -8081,11 +8844,9 @@ function localExists(filePath) {
   } else if (stats.isFile()) {
     return '-';
   } else {
-    throw fmtError(
-      `Bad path: ${filePath}: target must be a file or directory`,
-      'localExists',
-      errorCode.badPath
-    );
+    const err = new Error(`Bad path: ${filePath}: target must be a file or directory`);
+    err.code = errorCode.badPath;
+    throw err;
   }
 }
 
@@ -8119,29 +8880,37 @@ function haveLocalAccess(filePath, mode = 'r') {
       code: 0,
     };
   } catch (err) {
-    if (err.errno === -2) {
-      return {
-        status: false,
-        type: null,
-        details: 'not exist',
-        code: -2,
-      };
-    } else if (err.errno === -13) {
-      const type = localExists(filePath);
-      return {
-        status: false,
-        type: type,
-        details: 'permission denied',
-        code: -13,
-      };
-    } else if (err.errno === -20) {
-      return {
-        status: false,
-        type: null,
-        details: 'parent not a directory',
-      };
-    } else {
-      throw err;
+    switch (err.errno) {
+      case -2: {
+        return {
+          status: false,
+          type: null,
+          details: 'not exist',
+          code: -2,
+        };
+      }
+      case -13: {
+        return {
+          status: false,
+          type: localExists(filePath),
+          details: 'permission denied',
+          code: -13,
+        };
+      }
+      case -20: {
+        return {
+          status: false,
+          type: null,
+          details: 'parent not a directory',
+        };
+      }
+      default: {
+        return {
+          status: false,
+          type: null,
+          details: err.message,
+        };
+      }
     }
   }
 }
@@ -8157,38 +8926,41 @@ function haveLocalAccess(filePath, mode = 'r') {
  */
 function haveLocalCreate(filePath) {
   const { status, details, type } = haveLocalAccess(filePath, 'w');
-  if (!status && details === 'permission denied') {
-    //throw new Error(`Bad path: ${filePath}: permission denied`);
-    return {
-      status,
-      details,
-      type,
-    };
-  } else if (!status) {
+  if (!status) {
+    // filePath does not exist. Can we create it?
+    if (details === 'permission denied') {
+      // don't have permission
+      return {
+        status,
+        details,
+        type,
+      };
+    }
+    // to create it, parent must be directory and writeable
     const dirPath = path.dirname(filePath);
     const localCheck = haveLocalAccess(dirPath, 'w');
-    if (localCheck.status && localCheck.type !== 'd') {
-      //throw new Error(`Bad path: ${dirPath}: not a directory`);
-      return {
-        status: false,
-        details: `${dirPath}: not a directory`,
-        type: null,
-      };
-    } else if (!localCheck.status) {
-      //throw new Error(`Bad path: ${dirPath}: ${localCheck.details}`);
+    if (!localCheck.status) {
+      // no access to parent directory
       return {
         status: localCheck.status,
         details: `${dirPath}: ${localCheck.details}`,
         type: null,
       };
-    } else {
+    }
+    // exists, is it a directory?
+    if (localCheck.type !== 'd') {
       return {
-        status: true,
-        details: 'access OK',
+        status: false,
+        details: `${dirPath}: not a directory`,
         type: null,
-        code: 0,
       };
     }
+    return {
+      status: true,
+      details: 'access OK',
+      type: null,
+      code: 0,
+    };
   }
   return { status, details, type };
 }
@@ -8196,15 +8968,15 @@ function haveLocalCreate(filePath) {
 async function normalizeRemotePath(client, aPath) {
   try {
     if (aPath.startsWith('..')) {
-      let root = await client.realPath('..');
-      return root + client.remotePathSep + aPath.substring(3);
+      const root = await client.realPath('..');
+      return `${root}/${aPath.slice(3)}`;
     } else if (aPath.startsWith('.')) {
-      let root = await client.realPath('.');
-      return root + client.remotePathSep + aPath.substring(2);
+      const root = await client.realPath('.');
+      return `${root}/${aPath.slice(2)}`;
     }
     return aPath;
   } catch (err) {
-    throw fmtError(err, 'normalizeRemotePath');
+    throw new Error(`normalizeRemotePath: ${err.message}`);
   }
 }
 
@@ -8220,11 +8992,8 @@ async function normalizeRemotePath(client, aPath) {
  */
 function haveConnection(client, name, reject) {
   if (!client.sftp) {
-    let newError = fmtError(
-      'No SFTP connection available',
-      name,
-      errorCode.connect
-    );
+    const newError = new Error(`${name}: No SFTP connection available`);
+    newError.code = errorCode.connect;
     if (reject) {
       reject(newError);
       return false;
@@ -8238,17 +9007,34 @@ function haveConnection(client, name, reject) {
 function sleep(ms) {
   return new Promise((resolve, reject) => {
     try {
-      setTimeout(() => {
-        resolve(true);
-      }, ms);
+      if (Number.isNaN(Number.parseInt(ms)) || ms < 0) {
+        reject('Argument must be a number >= 0');
+      } else {
+        setTimeout(() => {
+          resolve(true);
+        }, ms);
+      }
     } catch (err) {
       reject(err);
     }
   });
 }
 
+function partition(input, size) {
+  let output = [];
+
+  if (size < 1) {
+    throw new Error('Partition size must be greater than zero');
+  }
+
+  for (let i = 0; i < input.length; i += size) {
+    output[output.length] = input.slice(i, i + size);
+  }
+  return output;
+}
+
 module.exports = {
-  fmtError,
+  globalListener,
   errorListener,
   endListener,
   closeListener,
@@ -8260,12 +9046,13 @@ module.exports = {
   localExists,
   haveConnection,
   sleep,
+  partition,
 };
 
 
 /***/ }),
 
-/***/ 8174:
+/***/ 6888:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -8279,8 +9066,8 @@ const {
 
 const {
   CHANNEL_EXTENDED_DATATYPE: { STDERR },
-} = __nccwpck_require__(9249);
-const { bufferSlice } = __nccwpck_require__(5346);
+} = __nccwpck_require__(5561);
+const { bufferSlice } = __nccwpck_require__(6100);
 
 const PACKET_SIZE = 32 * 1024;
 const MAX_WINDOW = 2 * 1024 * 1024;
@@ -8485,6 +9272,7 @@ class Channel extends DuplexStream {
   destroy() {
     this.end();
     this.close();
+    return this;
   }
 
   // Session type-specific methods =============================================
@@ -8567,7 +9355,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2754:
+/***/ 1566:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -8579,14 +9367,14 @@ const { resolve } = __nccwpck_require__(1017);
 const { readFile } = __nccwpck_require__(7147);
 const { execFile, spawn } = __nccwpck_require__(2081);
 
-const { isParsedKey, parseKey } = __nccwpck_require__(9765);
+const { isParsedKey, parseKey } = __nccwpck_require__(8374);
 
 const {
   makeBufferParser,
   readUInt32BE,
   writeUInt32BE,
   writeUInt32LE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 
 function once(cb) {
   let called = false;
@@ -9698,7 +10486,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3427:
+/***/ 6502:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -9734,11 +10522,11 @@ const {
   SUPPORTED_KEX,
   SUPPORTED_MAC,
   SUPPORTED_SERVER_HOST_KEY,
-} = __nccwpck_require__(9249);
-const { init: cryptoInit } = __nccwpck_require__(8254);
-const Protocol = __nccwpck_require__(3581);
-const { parseKey } = __nccwpck_require__(9765);
-const { SFTP } = __nccwpck_require__(9190);
+} = __nccwpck_require__(5561);
+const { init: cryptoInit } = __nccwpck_require__(2812);
+const Protocol = __nccwpck_require__(8276);
+const { parseKey } = __nccwpck_require__(8374);
+const { SFTP } = __nccwpck_require__(1874);
 const {
   bufferCopy,
   makeBufferParser,
@@ -9746,23 +10534,23 @@ const {
   readUInt32BE,
   sigSSHToASN1,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 
-const { AgentContext, createAgent, isAgent } = __nccwpck_require__(2754);
+const { AgentContext, createAgent, isAgent } = __nccwpck_require__(1566);
 const {
   Channel,
   MAX_WINDOW,
   PACKET_SIZE,
   windowAdjust,
   WINDOW_THRESHOLD,
-} = __nccwpck_require__(8174);
+} = __nccwpck_require__(6888);
 const {
   ChannelManager,
   generateAlgorithmList,
   isWritable,
   onChannelOpenFailure,
   onCHANNEL_CLOSE,
-} = __nccwpck_require__(4008);
+} = __nccwpck_require__(3213);
 
 const bufferParser = makeBufferParser();
 const sigParser = makeBufferParser();
@@ -10001,6 +10789,7 @@ class Client extends EventEmitter {
     const DEBUG_HANDLER = (!debug ? undefined : (p, display, msg) => {
       debug(`Debug output from server: ${JSON.stringify(msg)}`);
     });
+    let serverSigAlgs;
     const proto = this._protocol = new Protocol({
       ident: this.config.ident,
       offer: (allOfferDefaults ? undefined : algorithms),
@@ -10052,6 +10841,17 @@ class Client extends EventEmitter {
           if (name === 'ssh-userauth')
             tryNextAuth();
         },
+        EXT_INFO: (p, exts) => {
+          if (serverSigAlgs === undefined) {
+            for (const ext of exts) {
+              if (ext.name === 'server-sig-algs') {
+                serverSigAlgs = ext.algs;
+                return;
+              }
+            }
+            serverSigAlgs = null;
+          }
+        },
         USERAUTH_BANNER: (p, msg) => {
           this.emit('banner', msg);
         },
@@ -10064,6 +10864,51 @@ class Client extends EventEmitter {
           this.emit('ready');
         },
         USERAUTH_FAILURE: (p, authMethods, partialSuccess) => {
+          // For key-based authentication, check if we should retry the current
+          // key with a different algorithm first
+          if (curAuth.keyAlgos) {
+            const oldKeyAlgo = curAuth.keyAlgos[0][0];
+            if (debug)
+              debug(`Client: ${curAuth.type} (${oldKeyAlgo}) auth failed`);
+            curAuth.keyAlgos.shift();
+            if (curAuth.keyAlgos.length) {
+              const [keyAlgo, hashAlgo] = curAuth.keyAlgos[0];
+              switch (curAuth.type) {
+                case 'agent':
+                  proto.authPK(
+                    curAuth.username,
+                    curAuth.agentCtx.currentKey(),
+                    keyAlgo
+                  );
+                  return;
+                case 'publickey':
+                  proto.authPK(curAuth.username, curAuth.key, keyAlgo);
+                  return;
+                case 'hostbased':
+                  proto.authHostbased(curAuth.username,
+                                      curAuth.key,
+                                      curAuth.localHostname,
+                                      curAuth.localUsername,
+                                      keyAlgo,
+                                      (buf, cb) => {
+                    const signature = curAuth.key.sign(buf, hashAlgo);
+                    if (signature instanceof Error) {
+                      signature.message =
+                        `Error while signing with key: ${signature.message}`;
+                      signature.level = 'client-authentication';
+                      this.emit('error', signature);
+                      return tryNextAuth();
+                    }
+
+                    cb(signature);
+                  });
+                  return;
+              }
+            } else {
+              curAuth.keyAlgos = undefined;
+            }
+          }
+
           if (curAuth.type === 'agent') {
             const pos = curAuth.agentCtx.pos();
             debug && debug(`Client: Agent key #${pos + 1} failed`);
@@ -10090,10 +10935,15 @@ class Client extends EventEmitter {
           }
         },
         USERAUTH_PK_OK: (p) => {
+          let keyAlgo;
+          let hashAlgo;
+          if (curAuth.keyAlgos)
+            [keyAlgo, hashAlgo] = curAuth.keyAlgos[0];
           if (curAuth.type === 'agent') {
             const key = curAuth.agentCtx.currentKey();
-            proto.authPK(curAuth.username, key, (buf, cb) => {
-              curAuth.agentCtx.sign(key, buf, {}, (err, signed) => {
+            proto.authPK(curAuth.username, key, keyAlgo, (buf, cb) => {
+              const opts = { hash: hashAlgo };
+              curAuth.agentCtx.sign(key, buf, opts, (err, signed) => {
                 if (err) {
                   err.level = 'agent';
                   this.emit('error', err);
@@ -10105,8 +10955,8 @@ class Client extends EventEmitter {
               });
             });
           } else if (curAuth.type === 'publickey') {
-            proto.authPK(curAuth.username, curAuth.key, (buf, cb) => {
-              const signature = curAuth.key.sign(buf);
+            proto.authPK(curAuth.username, curAuth.key, keyAlgo, (buf, cb) => {
+              const signature = curAuth.key.sign(buf, hashAlgo);
               if (signature instanceof Error) {
                 signature.message =
                   `Error signing data with key: ${signature.message}`;
@@ -10641,16 +11491,42 @@ class Client extends EventEmitter {
           case 'password':
             proto.authPassword(username, curAuth.password);
             break;
-          case 'publickey':
-            proto.authPK(username, curAuth.key);
+          case 'publickey': {
+            let keyAlgo;
+            curAuth.keyAlgos = getKeyAlgos(this, curAuth.key, serverSigAlgs);
+            if (curAuth.keyAlgos) {
+              if (curAuth.keyAlgos.length) {
+                keyAlgo = curAuth.keyAlgos[0][0];
+              } else {
+                return skipAuth(
+                  'Skipping key authentication (no mutual hash algorithm)'
+                );
+              }
+            }
+            proto.authPK(username, curAuth.key, keyAlgo);
             break;
-          case 'hostbased':
+          }
+          case 'hostbased': {
+            let keyAlgo;
+            let hashAlgo;
+            curAuth.keyAlgos = getKeyAlgos(this, curAuth.key, serverSigAlgs);
+            if (curAuth.keyAlgos) {
+              if (curAuth.keyAlgos.length) {
+                [keyAlgo, hashAlgo] = curAuth.keyAlgos[0];
+              } else {
+                return skipAuth(
+                  'Skipping hostbased authentication (no mutual hash algorithm)'
+                );
+              }
+            }
+
             proto.authHostbased(username,
                                 curAuth.key,
                                 curAuth.localHostname,
                                 curAuth.localUsername,
+                                keyAlgo,
                                 (buf, cb) => {
-              const signature = curAuth.key.sign(buf);
+              const signature = curAuth.key.sign(buf, hashAlgo);
               if (signature instanceof Error) {
                 signature.message =
                   `Error while signing with key: ${signature.message}`;
@@ -10662,6 +11538,7 @@ class Client extends EventEmitter {
               cb(signature);
             });
             break;
+          }
           case 'agent':
             curAuth.agentCtx.init((err) => {
               if (err) {
@@ -10706,8 +11583,21 @@ class Client extends EventEmitter {
           tryNextAuth();
         } else {
           const pos = curAuth.agentCtx.pos();
+          let keyAlgo;
+          curAuth.keyAlgos = getKeyAlgos(this, key, serverSigAlgs);
+          if (curAuth.keyAlgos) {
+            if (curAuth.keyAlgos.length) {
+              keyAlgo = curAuth.keyAlgos[0][0];
+            } else {
+              debug && debug(
+                `Agent: Skipping key #${pos + 1} (no mutual hash algorithm)`
+              );
+              tryNextAgentKey();
+              return;
+            }
+          }
           debug && debug(`Agent: Trying key #${pos + 1}`);
-          proto.authPK(curAuth.username, key);
+          proto.authPK(curAuth.username, key, keyAlgo);
         }
       }
     };
@@ -10738,7 +11628,6 @@ class Client extends EventEmitter {
           localAddress: this.config.localAddress,
           localPort: this.config.localPort
         });
-        sock.setNoDelay(true);
         sock.setMaxListeners(0);
         sock.setTimeout(typeof cfg.timeout === 'number' ? cfg.timeout : 0);
       };
@@ -11215,6 +12104,13 @@ class Client extends EventEmitter {
         sftp._init();
       });
     });
+
+    return this;
+  }
+
+  setNoDelay(noDelay) {
+    if (this._sock && typeof this._sock.setNoDelay === 'function')
+      this._sock.setNoDelay(noDelay);
 
     return this;
   }
@@ -11715,12 +12611,33 @@ function hostKeysProve(client, keys_, cb) {
   );
 }
 
+function getKeyAlgos(client, key, serverSigAlgs) {
+  switch (key.type) {
+    case 'ssh-rsa':
+      if (client._protocol._compatFlags & COMPAT.IMPLY_RSA_SHA2_SIGALGS) {
+        if (!Array.isArray(serverSigAlgs))
+          serverSigAlgs = ['rsa-sha2-256', 'rsa-sha2-512'];
+        else
+          serverSigAlgs = ['rsa-sha2-256', 'rsa-sha2-512', ...serverSigAlgs];
+      }
+      if (Array.isArray(serverSigAlgs)) {
+        if (serverSigAlgs.indexOf('rsa-sha2-256') !== -1)
+          return [['rsa-sha2-256', 'sha256']];
+        if (serverSigAlgs.indexOf('rsa-sha2-512') !== -1)
+          return [['rsa-sha2-512', 'sha512']];
+        if (serverSigAlgs.indexOf('ssh-rsa') === -1)
+          return [];
+      }
+      return [['ssh-rsa', 'sha1']];
+  }
+}
+
 module.exports = Client;
 
 
 /***/ }),
 
-/***/ 2093:
+/***/ 5094:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -11748,7 +12665,7 @@ for (const ctor of [HttpAgent, HttpsAgent]) {
       const dstPort = options.port;
 
       if (Client === undefined)
-        Client = __nccwpck_require__(3427);
+        Client = __nccwpck_require__(6502);
 
       const client = new Client();
       let triedForward = false;
@@ -11812,7 +12729,7 @@ function decorateStream(stream, ctor, options) {
 
 /***/ }),
 
-/***/ 9535:
+/***/ 2750:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -11825,32 +12742,33 @@ const {
   CygwinAgent,
   OpenSSHAgent,
   PageantAgent,
-} = __nccwpck_require__(2754);
+} = __nccwpck_require__(1566);
 const {
   SSHTTPAgent: HTTPAgent,
   SSHTTPSAgent: HTTPSAgent,
-} = __nccwpck_require__(2093);
-const { parseKey } = __nccwpck_require__(9765);
+} = __nccwpck_require__(5094);
+const { parseKey } = __nccwpck_require__(8374);
 const {
   flagsToString,
   OPEN_MODE,
   STATUS_CODE,
   stringToFlags,
-} = __nccwpck_require__(9190);
+} = __nccwpck_require__(1874);
 
 module.exports = {
   AgentProtocol,
   BaseAgent,
   createAgent,
-  Client: __nccwpck_require__(3427),
+  Client: __nccwpck_require__(6502),
   CygwinAgent,
   HTTPAgent,
   HTTPSAgent,
   OpenSSHAgent,
   PageantAgent,
-  Server: __nccwpck_require__(2421),
+  Server: __nccwpck_require__(9763),
   utils: {
     parseKey,
+    ...__nccwpck_require__(1500),
     sftp: {
       flagsToString,
       OPEN_MODE,
@@ -11863,7 +12781,597 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3581:
+/***/ 1500:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+const {
+  createCipheriv,
+  generateKeyPair: generateKeyPair_,
+  generateKeyPairSync: generateKeyPairSync_,
+  getCurves,
+  randomBytes,
+} = __nccwpck_require__(6113);
+
+const { Ber } = __nccwpck_require__(831);
+const bcrypt_pbkdf = (__nccwpck_require__(2770).pbkdf);
+
+const { CIPHER_INFO } = __nccwpck_require__(2812);
+
+const SALT_LEN = 16;
+const DEFAULT_ROUNDS = 16;
+
+const curves = getCurves();
+const ciphers = new Map(Object.entries(CIPHER_INFO));
+
+function makeArgs(type, opts) {
+  if (typeof type !== 'string')
+    throw new TypeError('Key type must be a string');
+
+  const publicKeyEncoding = { type: 'spki', format: 'der' };
+  const privateKeyEncoding = { type: 'pkcs8', format: 'der' };
+
+  switch (type.toLowerCase()) {
+    case 'rsa': {
+      if (typeof opts !== 'object' || opts === null)
+        throw new TypeError('Missing options object for RSA key');
+      const modulusLength = opts.bits;
+      if (!Number.isInteger(modulusLength))
+        throw new TypeError('RSA bits must be an integer');
+      if (modulusLength <= 0 || modulusLength > 16384)
+        throw new RangeError('RSA bits must be non-zero and <= 16384');
+      return ['rsa', { modulusLength, publicKeyEncoding, privateKeyEncoding }];
+    }
+    case 'ecdsa': {
+      if (typeof opts !== 'object' || opts === null)
+        throw new TypeError('Missing options object for ECDSA key');
+      if (!Number.isInteger(opts.bits))
+        throw new TypeError('ECDSA bits must be an integer');
+      let namedCurve;
+      switch (opts.bits) {
+        case 256:
+          namedCurve = 'prime256v1';
+          break;
+        case 384:
+          namedCurve = 'secp384r1';
+          break;
+        case 521:
+          namedCurve = 'secp521r1';
+          break;
+        default:
+          throw new Error('ECDSA bits must be 256, 384, or 521');
+      }
+      if (!curves.includes(namedCurve))
+        throw new Error('Unsupported ECDSA bits value');
+      return ['ec', { namedCurve, publicKeyEncoding, privateKeyEncoding }];
+    }
+    case 'ed25519':
+      return ['ed25519', { publicKeyEncoding, privateKeyEncoding }];
+    default:
+      throw new Error(`Unsupported key type: ${type}`);
+  }
+}
+
+function parseDERs(keyType, pub, priv) {
+  switch (keyType) {
+    case 'rsa': {
+      // Note: we don't need to parse the public key since the PKCS8 private key
+      // already includes the public key parameters
+
+      // Parse private key
+      let reader = new Ber.Reader(priv);
+      reader.readSequence();
+
+      // - Version
+      if (reader.readInt() !== 0)
+        throw new Error('Unsupported version in RSA private key');
+
+      // - Algorithm
+      reader.readSequence();
+      if (reader.readOID() !== '1.2.840.113549.1.1.1')
+        throw new Error('Bad RSA private OID');
+      // - Algorithm parameters (RSA has none)
+      if (reader.readByte() !== Ber.Null)
+        throw new Error('Malformed RSA private key (expected null)');
+      if (reader.readByte() !== 0x00) {
+        throw new Error(
+          'Malformed RSA private key (expected zero-length null)'
+        );
+      }
+
+      reader = new Ber.Reader(reader.readString(Ber.OctetString, true));
+      reader.readSequence();
+      if (reader.readInt() !== 0)
+        throw new Error('Unsupported version in RSA private key');
+      const n = reader.readString(Ber.Integer, true);
+      const e = reader.readString(Ber.Integer, true);
+      const d = reader.readString(Ber.Integer, true);
+      const p = reader.readString(Ber.Integer, true);
+      const q = reader.readString(Ber.Integer, true);
+      reader.readString(Ber.Integer, true); // dmp1
+      reader.readString(Ber.Integer, true); // dmq1
+      const iqmp = reader.readString(Ber.Integer, true);
+
+      /*
+        OpenSSH RSA private key:
+          string  "ssh-rsa"
+          string  n -- public
+          string  e -- public
+          string  d -- private
+          string  iqmp -- private
+          string  p -- private
+          string  q -- private
+      */
+      const keyName = Buffer.from('ssh-rsa');
+      const privBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + n.length
+        + 4 + e.length
+        + 4 + d.length
+        + 4 + iqmp.length
+        + 4 + p.length
+        + 4 + q.length
+      );
+      let pos = 0;
+
+      privBuf.writeUInt32BE(keyName.length, pos += 0);
+      privBuf.set(keyName, pos += 4);
+      privBuf.writeUInt32BE(n.length, pos += keyName.length);
+      privBuf.set(n, pos += 4);
+      privBuf.writeUInt32BE(e.length, pos += n.length);
+      privBuf.set(e, pos += 4);
+      privBuf.writeUInt32BE(d.length, pos += e.length);
+      privBuf.set(d, pos += 4);
+      privBuf.writeUInt32BE(iqmp.length, pos += d.length);
+      privBuf.set(iqmp, pos += 4);
+      privBuf.writeUInt32BE(p.length, pos += iqmp.length);
+      privBuf.set(p, pos += 4);
+      privBuf.writeUInt32BE(q.length, pos += p.length);
+      privBuf.set(q, pos += 4);
+
+      /*
+        OpenSSH RSA public key:
+          string  "ssh-rsa"
+          string  e -- public
+          string  n -- public
+      */
+      const pubBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + e.length
+        + 4 + n.length
+      );
+      pos = 0;
+
+      pubBuf.writeUInt32BE(keyName.length, pos += 0);
+      pubBuf.set(keyName, pos += 4);
+      pubBuf.writeUInt32BE(e.length, pos += keyName.length);
+      pubBuf.set(e, pos += 4);
+      pubBuf.writeUInt32BE(n.length, pos += e.length);
+      pubBuf.set(n, pos += 4);
+
+      return { sshName: keyName.toString(), priv: privBuf, pub: pubBuf };
+    }
+    case 'ec': {
+      // Parse public key
+      let reader = new Ber.Reader(pub);
+      reader.readSequence();
+
+      reader.readSequence();
+      if (reader.readOID() !== '1.2.840.10045.2.1')
+        throw new Error('Bad ECDSA public OID');
+      // Skip curve OID, we'll get it from the private key
+      reader.readOID();
+      let pubBin = reader.readString(Ber.BitString, true);
+      {
+        // Remove leading zero bytes
+        let i = 0;
+        for (; i < pubBin.length && pubBin[i] === 0x00; ++i);
+        if (i > 0)
+          pubBin = pubBin.slice(i);
+      }
+
+      // Parse private key
+      reader = new Ber.Reader(priv);
+      reader.readSequence();
+
+      // - Version
+      if (reader.readInt() !== 0)
+        throw new Error('Unsupported version in ECDSA private key');
+
+      reader.readSequence();
+      if (reader.readOID() !== '1.2.840.10045.2.1')
+        throw new Error('Bad ECDSA private OID');
+      const curveOID = reader.readOID();
+      let sshCurveName;
+      switch (curveOID) {
+        case '1.2.840.10045.3.1.7':
+          // prime256v1/secp256r1
+          sshCurveName = 'nistp256';
+          break;
+        case '1.3.132.0.34':
+          // secp384r1
+          sshCurveName = 'nistp384';
+          break;
+        case '1.3.132.0.35':
+          // secp521r1
+          sshCurveName = 'nistp521';
+          break;
+        default:
+          throw new Error('Unsupported curve in ECDSA private key');
+      }
+
+      reader = new Ber.Reader(reader.readString(Ber.OctetString, true));
+      reader.readSequence();
+
+      // - Version
+      if (reader.readInt() !== 1)
+        throw new Error('Unsupported version in ECDSA private key');
+
+      // Add leading zero byte to prevent negative bignum in private key
+      const privBin = Buffer.concat([
+        Buffer.from([0x00]),
+        reader.readString(Ber.OctetString, true)
+      ]);
+
+      /*
+        OpenSSH ECDSA private key:
+          string  "ecdsa-sha2-<sshCurveName>"
+          string  curve name
+          string  Q -- public
+          string  d -- private
+      */
+      const keyName = Buffer.from(`ecdsa-sha2-${sshCurveName}`);
+      sshCurveName = Buffer.from(sshCurveName);
+      const privBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + sshCurveName.length
+        + 4 + pubBin.length
+        + 4 + privBin.length
+      );
+      let pos = 0;
+
+      privBuf.writeUInt32BE(keyName.length, pos += 0);
+      privBuf.set(keyName, pos += 4);
+      privBuf.writeUInt32BE(sshCurveName.length, pos += keyName.length);
+      privBuf.set(sshCurveName, pos += 4);
+      privBuf.writeUInt32BE(pubBin.length, pos += sshCurveName.length);
+      privBuf.set(pubBin, pos += 4);
+      privBuf.writeUInt32BE(privBin.length, pos += pubBin.length);
+      privBuf.set(privBin, pos += 4);
+
+      /*
+        OpenSSH ECDSA public key:
+          string  "ecdsa-sha2-<sshCurveName>"
+          string  curve name
+          string  Q -- public
+      */
+      const pubBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + sshCurveName.length
+        + 4 + pubBin.length
+      );
+      pos = 0;
+
+      pubBuf.writeUInt32BE(keyName.length, pos += 0);
+      pubBuf.set(keyName, pos += 4);
+      pubBuf.writeUInt32BE(sshCurveName.length, pos += keyName.length);
+      pubBuf.set(sshCurveName, pos += 4);
+      pubBuf.writeUInt32BE(pubBin.length, pos += sshCurveName.length);
+      pubBuf.set(pubBin, pos += 4);
+
+      return { sshName: keyName.toString(), priv: privBuf, pub: pubBuf };
+    }
+    case 'ed25519': {
+      // Parse public key
+      let reader = new Ber.Reader(pub);
+      reader.readSequence();
+
+      // - Algorithm
+      reader.readSequence();
+      if (reader.readOID() !== '1.3.101.112')
+        throw new Error('Bad ED25519 public OID');
+      // - Attributes (absent for ED25519)
+
+      let pubBin = reader.readString(Ber.BitString, true);
+      {
+        // Remove leading zero bytes
+        let i = 0;
+        for (; i < pubBin.length && pubBin[i] === 0x00; ++i);
+        if (i > 0)
+          pubBin = pubBin.slice(i);
+      }
+
+      // Parse private key
+      reader = new Ber.Reader(priv);
+      reader.readSequence();
+
+      // - Version
+      if (reader.readInt() !== 0)
+        throw new Error('Unsupported version in ED25519 private key');
+
+      // - Algorithm
+      reader.readSequence();
+      if (reader.readOID() !== '1.3.101.112')
+        throw new Error('Bad ED25519 private OID');
+      // - Attributes (absent)
+
+      reader = new Ber.Reader(reader.readString(Ber.OctetString, true));
+      const privBin = reader.readString(Ber.OctetString, true);
+
+      /*
+        OpenSSH ed25519 private key:
+          string  "ssh-ed25519"
+          string  public key
+          string  private key + public key
+      */
+      const keyName = Buffer.from('ssh-ed25519');
+      const privBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + pubBin.length
+        + 4 + (privBin.length + pubBin.length)
+      );
+      let pos = 0;
+
+      privBuf.writeUInt32BE(keyName.length, pos += 0);
+      privBuf.set(keyName, pos += 4);
+      privBuf.writeUInt32BE(pubBin.length, pos += keyName.length);
+      privBuf.set(pubBin, pos += 4);
+      privBuf.writeUInt32BE(
+        privBin.length + pubBin.length,
+        pos += pubBin.length
+      );
+      privBuf.set(privBin, pos += 4);
+      privBuf.set(pubBin, pos += privBin.length);
+
+      /*
+        OpenSSH ed25519 public key:
+          string  "ssh-ed25519"
+          string  public key
+      */
+      const pubBuf = Buffer.allocUnsafe(
+        4 + keyName.length
+        + 4 + pubBin.length
+      );
+      pos = 0;
+
+      pubBuf.writeUInt32BE(keyName.length, pos += 0);
+      pubBuf.set(keyName, pos += 4);
+      pubBuf.writeUInt32BE(pubBin.length, pos += keyName.length);
+      pubBuf.set(pubBin, pos += 4);
+
+      return { sshName: keyName.toString(), priv: privBuf, pub: pubBuf };
+    }
+  }
+}
+
+function convertKeys(keyType, pub, priv, opts) {
+  let format = 'new';
+  let encrypted;
+  let comment = '';
+  if (typeof opts === 'object' && opts !== null) {
+    if (typeof opts.comment === 'string' && opts.comment)
+      comment = opts.comment;
+    if (typeof opts.format === 'string' && opts.format)
+      format = opts.format;
+    if (opts.passphrase) {
+      let passphrase;
+      if (typeof opts.passphrase === 'string')
+        passphrase = Buffer.from(opts.passphrase);
+      else if (Buffer.isBuffer(opts.passphrase))
+        passphrase = opts.passphrase;
+      else
+        throw new Error('Invalid passphrase');
+
+      if (opts.cipher === undefined)
+        throw new Error('Missing cipher name');
+      const cipher = ciphers.get(opts.cipher);
+      if (cipher === undefined)
+        throw new Error('Invalid cipher name');
+
+      if (format === 'new') {
+        let rounds = DEFAULT_ROUNDS;
+        if (opts.rounds !== undefined) {
+          if (!Number.isInteger(opts.rounds))
+            throw new TypeError('rounds must be an integer');
+          if (opts.rounds > 0)
+            rounds = opts.rounds;
+        }
+
+        const gen = Buffer.allocUnsafe(cipher.keyLen + cipher.ivLen);
+        const salt = randomBytes(SALT_LEN);
+        const r = bcrypt_pbkdf(
+          passphrase,
+          passphrase.length,
+          salt,
+          salt.length,
+          gen,
+          gen.length,
+          rounds
+        );
+        if (r !== 0)
+          return new Error('Failed to generate information to encrypt key');
+
+        /*
+          string salt
+          uint32 rounds
+        */
+        const kdfOptions = Buffer.allocUnsafe(4 + salt.length + 4);
+        {
+          let pos = 0;
+          kdfOptions.writeUInt32BE(salt.length, pos += 0);
+          kdfOptions.set(salt, pos += 4);
+          kdfOptions.writeUInt32BE(rounds, pos += salt.length);
+        }
+
+        encrypted = {
+          cipher,
+          cipherName: opts.cipher,
+          kdfName: 'bcrypt',
+          kdfOptions,
+          key: gen.slice(0, cipher.keyLen),
+          iv: gen.slice(cipher.keyLen),
+        };
+      }
+    }
+  }
+
+  switch (format) {
+    case 'new': {
+      let privateB64 = '-----BEGIN OPENSSH PRIVATE KEY-----\n';
+      let publicB64;
+      /*
+        byte[]  "openssh-key-v1\0"
+        string  ciphername
+        string  kdfname
+        string  kdfoptions
+        uint32  number of keys N
+        string  publickey1
+        string  encrypted, padded list of private keys
+          uint32  checkint
+          uint32  checkint
+          byte[]  privatekey1
+          string  comment1
+          byte  1
+          byte  2
+          byte  3
+          ...
+          byte  padlen % 255
+      */
+      const cipherName = Buffer.from(encrypted ? encrypted.cipherName : 'none');
+      const kdfName = Buffer.from(encrypted ? encrypted.kdfName : 'none');
+      const kdfOptions = (encrypted ? encrypted.kdfOptions : Buffer.alloc(0));
+      const blockLen = (encrypted ? encrypted.cipher.blockLen : 8);
+
+      const parsed = parseDERs(keyType, pub, priv);
+
+      const checkInt = randomBytes(4);
+      const commentBin = Buffer.from(comment);
+      const privBlobLen = (4 + 4 + parsed.priv.length + 4 + commentBin.length);
+      let padding = [];
+      for (let i = 1; ((privBlobLen + padding.length) % blockLen); ++i)
+        padding.push(i & 0xFF);
+      padding = Buffer.from(padding);
+
+      let privBlob = Buffer.allocUnsafe(privBlobLen + padding.length);
+      let extra;
+      {
+        let pos = 0;
+        privBlob.set(checkInt, pos += 0);
+        privBlob.set(checkInt, pos += 4);
+        privBlob.set(parsed.priv, pos += 4);
+        privBlob.writeUInt32BE(commentBin.length, pos += parsed.priv.length);
+        privBlob.set(commentBin, pos += 4);
+        privBlob.set(padding, pos += commentBin.length);
+      }
+
+      if (encrypted) {
+        const options = { authTagLength: encrypted.cipher.authLen };
+        const cipher = createCipheriv(
+          encrypted.cipher.sslName,
+          encrypted.key,
+          encrypted.iv,
+          options
+        );
+        cipher.setAutoPadding(false);
+        privBlob = Buffer.concat([ cipher.update(privBlob), cipher.final() ]);
+        if (encrypted.cipher.authLen > 0)
+          extra = cipher.getAuthTag();
+        else
+          extra = Buffer.alloc(0);
+        encrypted.key.fill(0);
+        encrypted.iv.fill(0);
+      } else {
+        extra = Buffer.alloc(0);
+      }
+
+      const magicBytes = Buffer.from('openssh-key-v1\0');
+      const privBin = Buffer.allocUnsafe(
+        magicBytes.length
+          + 4 + cipherName.length
+          + 4 + kdfName.length
+          + 4 + kdfOptions.length
+          + 4
+          + 4 + parsed.pub.length
+          + 4 + privBlob.length
+          + extra.length
+      );
+      {
+        let pos = 0;
+        privBin.set(magicBytes, pos += 0);
+        privBin.writeUInt32BE(cipherName.length, pos += magicBytes.length);
+        privBin.set(cipherName, pos += 4);
+        privBin.writeUInt32BE(kdfName.length, pos += cipherName.length);
+        privBin.set(kdfName, pos += 4);
+        privBin.writeUInt32BE(kdfOptions.length, pos += kdfName.length);
+        privBin.set(kdfOptions, pos += 4);
+        privBin.writeUInt32BE(1, pos += kdfOptions.length);
+        privBin.writeUInt32BE(parsed.pub.length, pos += 4);
+        privBin.set(parsed.pub, pos += 4);
+        privBin.writeUInt32BE(privBlob.length, pos += parsed.pub.length);
+        privBin.set(privBlob, pos += 4);
+        privBin.set(extra, pos += privBlob.length);
+      }
+
+      {
+        const b64 = privBin.base64Slice(0, privBin.length);
+        let formatted = b64.replace(/.{64}/g, '$&\n');
+        if (b64.length & 63)
+          formatted += '\n';
+        privateB64 += formatted;
+      }
+
+      {
+        const b64 = parsed.pub.base64Slice(0, parsed.pub.length);
+        publicB64 = `${parsed.sshName} ${b64}${comment ? ` ${comment}` : ''}`;
+      }
+
+      privateB64 += '-----END OPENSSH PRIVATE KEY-----\n';
+      return {
+        private: privateB64,
+        public: publicB64,
+      };
+    }
+    default:
+      throw new Error('Invalid output key format');
+  }
+}
+
+function noop() {}
+
+module.exports = {
+  generateKeyPair: (keyType, opts, cb) => {
+    if (typeof opts === 'function') {
+      cb = opts;
+      opts = undefined;
+    }
+    if (typeof cb !== 'function')
+      cb = noop;
+    const args = makeArgs(keyType, opts);
+    generateKeyPair_(...args, (err, pub, priv) => {
+      if (err)
+        return cb(err);
+      let ret;
+      try {
+        ret = convertKeys(args[0], pub, priv, opts);
+      } catch (ex) {
+        return cb(ex);
+      }
+      cb(null, ret);
+    });
+  },
+  generateKeyPairSync: (keyType, opts) => {
+    const args = makeArgs(keyType, opts);
+    const { publicKey: pub, privateKey: priv } = generateKeyPairSync_(...args);
+    return convertKeys(args[0], pub, priv, opts);
+  }
+};
+
+
+/***/ }),
+
+/***/ 8276:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -11909,24 +13417,26 @@ module.exports = {
 
 const { inspect } = __nccwpck_require__(3837);
 
-const { bindingAvailable, NullCipher, NullDecipher } = __nccwpck_require__(8254);
+const { bindingAvailable, NullCipher, NullDecipher } = __nccwpck_require__(2812);
 const {
   COMPAT_CHECKS,
   DISCONNECT_REASON,
+  eddsaSupported,
   MESSAGE,
   SIGNALS,
   TERMINAL_MODE,
-} = __nccwpck_require__(9249);
+} = __nccwpck_require__(5561);
 const {
-  DEFAULT_KEXINIT,
+  DEFAULT_KEXINIT_CLIENT,
+  DEFAULT_KEXINIT_SERVER,
   KexInit,
   kexinit,
   onKEXPayload,
-} = __nccwpck_require__(7945);
+} = __nccwpck_require__(8017);
 const {
   parseKey,
-} = __nccwpck_require__(9765);
-const MESSAGE_HANDLERS = __nccwpck_require__(1955);
+} = __nccwpck_require__(8374);
+const MESSAGE_HANDLERS = __nccwpck_require__(7853);
 const {
   bufferCopy,
   bufferFill,
@@ -11934,13 +13444,13 @@ const {
   convertSignature,
   sendPacket,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 const {
   PacketReader,
   PacketWriter,
   ZlibPacketReader,
   ZlibPacketWriter,
-} = __nccwpck_require__(2212);
+} = __nccwpck_require__(5673);
 
 const MODULE_VER = (__nccwpck_require__(6674)/* .version */ .i8);
 
@@ -12007,8 +13517,13 @@ class Protocol {
     let onHandshakeComplete = config.onHandshakeComplete;
     if (typeof onHandshakeComplete !== 'function')
       onHandshakeComplete = noop;
+    let firstHandshake;
     this._onHandshakeComplete = (...args) => {
       this._debug && this._debug('Handshake completed');
+      if (firstHandshake === undefined)
+        firstHandshake = true;
+      else
+        firstHandshake = false;
 
       // Process packets queued during a rekey where necessary
       const oldQueue = this._queue;
@@ -12033,6 +13548,9 @@ class Protocol {
         }
         this._debug && this._debug('... finished draining outbound queue');
       }
+
+      if (firstHandshake && this._server && this._kex.remoteExtInfoEnabled)
+        sendExtInfo(this);
 
       onHandshakeComplete(...args);
     };
@@ -12074,11 +13592,21 @@ class Protocol {
     }
 
     let offer = config.offer;
-    if (typeof offer !== 'object' || offer === null)
-      offer = DEFAULT_KEXINIT;
-    else if (offer.constructor !== KexInit)
+    if (typeof offer !== 'object' || offer === null) {
+      offer = (this._server ? DEFAULT_KEXINIT_SERVER : DEFAULT_KEXINIT_CLIENT);
+    } else if (offer.constructor !== KexInit) {
+      if (this._server) {
+        offer.kex = offer.kex.concat(['kex-strict-s-v00@openssh.com']);
+      } else {
+        offer.kex = offer.kex.concat([
+          'ext-info-c',
+          'kex-strict-c-v00@openssh.com',
+        ]);
+      }
       offer = new KexInit(offer);
+    }
     this._kex = undefined;
+    this._strictMode = undefined;
     this._kexinit = undefined;
     this._offer = offer;
     this._cipher = new NullCipher(0, this._onWrite);
@@ -12477,7 +14005,7 @@ class Protocol {
 
     sendPacket(this, this._packetRW.write.finalize(packet));
   }
-  authPK(username, pubKey, cbSign) {
+  authPK(username, pubKey, keyAlgo, cbSign) {
     if (this._server)
       throw new Error('Client-only method called in server mode');
 
@@ -12488,8 +14016,15 @@ class Protocol {
     const keyType = pubKey.type;
     pubKey = pubKey.getPublicSSH();
 
+    if (typeof keyAlgo === 'function') {
+      cbSign = keyAlgo;
+      keyAlgo = undefined;
+    }
+    if (!keyAlgo)
+      keyAlgo = keyType;
+
     const userLen = Buffer.byteLength(username);
-    const algoLen = Buffer.byteLength(keyType);
+    const algoLen = Buffer.byteLength(keyAlgo);
     const pubKeyLen = pubKey.length;
     const sessionID = this._kex.sessionID;
     const sesLen = sessionID.length;
@@ -12523,7 +14058,7 @@ class Protocol {
     packet[p += 9] = (cbSign ? 1 : 0);
 
     writeUInt32BE(packet, algoLen, ++p);
-    packet.utf8Write(keyType, p += 4, algoLen);
+    packet.utf8Write(keyAlgo, p += 4, algoLen);
 
     writeUInt32BE(packet, pubKeyLen, p += algoLen);
     packet.set(pubKey, p += 4);
@@ -12566,7 +14101,7 @@ class Protocol {
       packet[p += 9] = 1;
 
       writeUInt32BE(packet, algoLen, ++p);
-      packet.utf8Write(keyType, p += 4, algoLen);
+      packet.utf8Write(keyAlgo, p += 4, algoLen);
 
       writeUInt32BE(packet, pubKeyLen, p += algoLen);
       packet.set(pubKey, p += 4);
@@ -12574,7 +14109,7 @@ class Protocol {
       writeUInt32BE(packet, 4 + algoLen + 4 + sigLen, p += pubKeyLen);
 
       writeUInt32BE(packet, algoLen, p += 4);
-      packet.utf8Write(keyType, p += 4, algoLen);
+      packet.utf8Write(keyAlgo, p += 4, algoLen);
 
       writeUInt32BE(packet, sigLen, p += algoLen);
       packet.set(signature, p += 4);
@@ -12589,7 +14124,7 @@ class Protocol {
       sendPacket(this, this._packetRW.write.finalize(packet));
     });
   }
-  authHostbased(username, pubKey, hostname, userlocal, cbSign) {
+  authHostbased(username, pubKey, hostname, userlocal, keyAlgo, cbSign) {
     // TODO: Make DRY by sharing similar code with authPK()
     if (this._server)
       throw new Error('Client-only method called in server mode');
@@ -12601,8 +14136,15 @@ class Protocol {
     const keyType = pubKey.type;
     pubKey = pubKey.getPublicSSH();
 
+    if (typeof keyAlgo === 'function') {
+      cbSign = keyAlgo;
+      keyAlgo = undefined;
+    }
+    if (!keyAlgo)
+      keyAlgo = keyType;
+
     const userLen = Buffer.byteLength(username);
-    const algoLen = Buffer.byteLength(keyType);
+    const algoLen = Buffer.byteLength(keyAlgo);
     const pubKeyLen = pubKey.length;
     const sessionID = this._kex.sessionID;
     const sesLen = sessionID.length;
@@ -12629,7 +14171,7 @@ class Protocol {
     data.utf8Write('hostbased', p += 4, 9);
 
     writeUInt32BE(data, algoLen, p += 9);
-    data.utf8Write(keyType, p += 4, algoLen);
+    data.utf8Write(keyAlgo, p += 4, algoLen);
 
     writeUInt32BE(data, pubKeyLen, p += algoLen);
     data.set(pubKey, p += 4);
@@ -12656,7 +14198,7 @@ class Protocol {
 
       writeUInt32BE(packet, 4 + algoLen + 4 + sigLen, p += reqDataLen);
       writeUInt32BE(packet, algoLen, p += 4);
-      packet.utf8Write(keyType, p += 4, algoLen);
+      packet.utf8Write(keyAlgo, p += 4, algoLen);
       writeUInt32BE(packet, sigLen, p += algoLen);
       packet.set(signature, p += 4);
 
@@ -13943,12 +15485,37 @@ function modesToBytes(modes) {
   return bytes;
 }
 
+function sendExtInfo(proto) {
+  let serverSigAlgs =
+    'ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521'
+      + 'rsa-sha2-512,rsa-sha2-256,ssh-rsa,ssh-dss';
+  if (eddsaSupported)
+    serverSigAlgs = `ssh-ed25519,${serverSigAlgs}`;
+  const algsLen = Buffer.byteLength(serverSigAlgs);
+
+  let p = proto._packetRW.write.allocStart;
+  const packet = proto._packetRW.write.alloc(1 + 4 + 4 + 15 + 4 + algsLen);
+
+  packet[p] = MESSAGE.EXT_INFO;
+
+  writeUInt32BE(packet, 1, ++p);
+
+  writeUInt32BE(packet, 15, p += 4);
+  packet.utf8Write('server-sig-algs', p += 4, 15);
+
+  writeUInt32BE(packet, algsLen, p += 15);
+  packet.utf8Write(serverSigAlgs, p += 4, algsLen);
+
+  proto._debug && proto._debug('Outbound: Sending EXT_INFO');
+  sendPacket(proto, proto._packetRW.write.finalize(packet));
+}
+
 module.exports = Protocol;
 
 
 /***/ }),
 
-/***/ 9190:
+/***/ 1874:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -13970,7 +15537,7 @@ const {
   bufferSlice,
   makeBufferParser,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 
 const ATTR = {
   SIZE: 0x00000001,
@@ -15542,12 +17109,247 @@ class SFTP extends EventEmitter {
     writeUInt32BE(buf, pathLen, p += 20);
     buf.utf8Write(path, p += 4, pathLen);
 
-    this._requests[reqid] = { cb };
+    this._requests[reqid] = {
+      cb: (err, names) => {
+        if (typeof cb !== 'function')
+          return;
+        if (err)
+          return cb(err);
+        if (!names || !names.length)
+          return cb(new Error('Response missing expanded path'));
+        cb(undefined, names[0].filename);
+      }
+    };
 
     const isBuffered = sendOrBuffer(this, buf);
     if (this._debug) {
       const status = (isBuffered ? 'Buffered' : 'Sending');
       this._debug(`SFTP: Outbound: ${status} expand-path@openssh.com`);
+    }
+  }
+  ext_copy_data(srcHandle, srcOffset, len, dstHandle, dstOffset, cb) {
+    if (this.server)
+      throw new Error('Client-only method called in server mode');
+
+    const ext = this._extensions['copy-data'];
+    if (ext !== '1')
+      throw new Error('Server does not support this extended request');
+
+    if (!Buffer.isBuffer(srcHandle))
+      throw new Error('Source handle is not a Buffer');
+
+    if (!Buffer.isBuffer(dstHandle))
+      throw new Error('Destination handle is not a Buffer');
+
+    /*
+      uint32    id
+      string    "copy-data"
+      string    read-from-handle
+      uint64    read-from-offset
+      uint64    read-data-length
+      string    write-to-handle
+      uint64    write-to-offset
+    */
+    let p = 0;
+    const buf = Buffer.allocUnsafe(
+      4 + 1
+      + 4
+      + 4 + 9
+      + 4 + srcHandle.length
+      + 8
+      + 8
+      + 4 + dstHandle.length
+      + 8
+    );
+
+    writeUInt32BE(buf, buf.length - 4, p);
+    p += 4;
+
+    buf[p] = REQUEST.EXTENDED;
+    ++p;
+
+    const reqid = this._writeReqid = (this._writeReqid + 1) & MAX_REQID;
+    writeUInt32BE(buf, reqid, p);
+    p += 4;
+
+    writeUInt32BE(buf, 9, p);
+    p += 4;
+    buf.utf8Write('copy-data', p, 9);
+    p += 9;
+
+    writeUInt32BE(buf, srcHandle.length, p);
+    p += 4;
+    buf.set(srcHandle, p);
+    p += srcHandle.length;
+
+    for (let i = 7; i >= 0; --i) {
+      buf[p + i] = srcOffset & 0xFF;
+      srcOffset /= 256;
+    }
+    p += 8;
+
+    for (let i = 7; i >= 0; --i) {
+      buf[p + i] = len & 0xFF;
+      len /= 256;
+    }
+    p += 8;
+
+    writeUInt32BE(buf, dstHandle.length, p);
+    p += 4;
+    buf.set(dstHandle, p);
+    p += dstHandle.length;
+
+    for (let i = 7; i >= 0; --i) {
+      buf[p + i] = dstOffset & 0xFF;
+      dstOffset /= 256;
+    }
+
+    this._requests[reqid] = { cb };
+
+    const isBuffered = sendOrBuffer(this, buf);
+    if (this._debug) {
+      const status = (isBuffered ? 'Buffered' : 'Sending');
+      this._debug(`SFTP: Outbound: ${status} copy-data`);
+    }
+  }
+  ext_home_dir(username, cb) {
+    if (this.server)
+      throw new Error('Client-only method called in server mode');
+
+    const ext = this._extensions['home-directory'];
+    if (ext !== '1')
+      throw new Error('Server does not support this extended request');
+
+    if (typeof username !== 'string')
+      throw new TypeError('username is not a string');
+
+    /*
+      uint32    id
+      string    "home-directory"
+      string    username
+    */
+    let p = 0;
+    const usernameLen = Buffer.byteLength(username);
+    const buf = Buffer.allocUnsafe(
+      4 + 1
+      + 4
+      + 4 + 14
+      + 4 + usernameLen
+    );
+
+    writeUInt32BE(buf, buf.length - 4, p);
+    p += 4;
+
+    buf[p] = REQUEST.EXTENDED;
+    ++p;
+
+    const reqid = this._writeReqid = (this._writeReqid + 1) & MAX_REQID;
+    writeUInt32BE(buf, reqid, p);
+    p += 4;
+
+    writeUInt32BE(buf, 14, p);
+    p += 4;
+    buf.utf8Write('home-directory', p, 14);
+    p += 14;
+
+    writeUInt32BE(buf, usernameLen, p);
+    p += 4;
+    buf.utf8Write(username, p, usernameLen);
+    p += usernameLen;
+
+    this._requests[reqid] = {
+      cb: (err, names) => {
+        if (typeof cb !== 'function')
+          return;
+        if (err)
+          return cb(err);
+        if (!names || !names.length)
+          return cb(new Error('Response missing home directory'));
+        cb(undefined, names[0].filename);
+      }
+    };
+
+    const isBuffered = sendOrBuffer(this, buf);
+    if (this._debug) {
+      const status = (isBuffered ? 'Buffered' : 'Sending');
+      this._debug(`SFTP: Outbound: ${status} home-directory`);
+    }
+  }
+  ext_users_groups(uids, gids, cb) {
+    if (this.server)
+      throw new Error('Client-only method called in server mode');
+
+    const ext = this._extensions['users-groups-by-id@openssh.com'];
+    if (ext !== '1')
+      throw new Error('Server does not support this extended request');
+
+    if (!Array.isArray(uids))
+      throw new TypeError('uids is not an array');
+    for (const val of uids) {
+      if (!Number.isInteger(val) || val < 0 || val > (2 ** 32 - 1))
+        throw new Error('uid values must all be 32-bit unsigned integers');
+    }
+    if (!Array.isArray(gids))
+      throw new TypeError('gids is not an array');
+    for (const val of gids) {
+      if (!Number.isInteger(val) || val < 0 || val > (2 ** 32 - 1))
+        throw new Error('gid values must all be 32-bit unsigned integers');
+    }
+
+    /*
+      uint32    id
+      string    "users-groups-by-id@openssh.com"
+      string    uids
+        uint32    uid1
+        ...
+      string    gids
+        uint32    gid1
+        ...
+    */
+    let p = 0;
+    const buf = Buffer.allocUnsafe(
+      4 + 1
+      + 4
+      + 4 + 30
+      + 4 + (4 * uids.length)
+      + 4 + (4 * gids.length)
+    );
+
+    writeUInt32BE(buf, buf.length - 4, p);
+    p += 4;
+
+    buf[p] = REQUEST.EXTENDED;
+    ++p;
+
+    const reqid = this._writeReqid = (this._writeReqid + 1) & MAX_REQID;
+    writeUInt32BE(buf, reqid, p);
+    p += 4;
+
+    writeUInt32BE(buf, 30, p);
+    p += 4;
+    buf.utf8Write('users-groups-by-id@openssh.com', p, 30);
+    p += 30;
+
+    writeUInt32BE(buf, 4 * uids.length, p);
+    p += 4;
+    for (const val of uids) {
+      writeUInt32BE(buf, val, p);
+      p += 4;
+    }
+
+    writeUInt32BE(buf, 4 * gids.length, p);
+    p += 4;
+    for (const val of gids) {
+      writeUInt32BE(buf, val, p);
+      p += 4;
+    }
+
+    this._requests[reqid] = { extended: 'users-groups-by-id@openssh.com', cb };
+
+    const isBuffered = sendOrBuffer(this, buf);
+    if (this._debug) {
+      const status = (isBuffered ? 'Buffered' : 'Sending');
+      this._debug(`SFTP: Outbound: ${status} users-groups-by-id@openssh.com`);
     }
   }
   // ===========================================================================
@@ -15876,11 +17678,12 @@ function read_(self, handle, buf, off, len, position, cb, req_) {
         return;
       }
 
+      nb = (nb || 0);
       if (req.origOff === 0 && buf.length === req.nb)
         data = buf;
       else
-        data = bufferSlice(buf, req.origOff, req.origOff + req.nb);
-      cb(undefined, req.nb + (nb || 0), data, req.position);
+        data = bufferSlice(buf, req.origOff, req.origOff + req.nb + nb);
+      cb(undefined, req.nb + nb, data, req.position);
     },
     buffer: undefined,
   });
@@ -16370,7 +18173,8 @@ function tryWritePayload(sftp, payload) {
     return;
 
   if (outgoing.window === 0) {
-    sftp._waitWindow = true; // XXX: Unnecessary?
+    sftp._waitWindow = true;
+    sftp._chunkcb = drainBuffer;
     return payload;
   }
 
@@ -16547,14 +18351,13 @@ const CLIENT_HANDLERS = {
     */
     const errorCode = bufferParser.readUInt32BE();
     const errorMsg = bufferParser.readString(true);
-    const lang = bufferParser.skipString();
     bufferParser.clear();
 
-    if (lang === undefined) {
-      if (reqID !== undefined)
-        delete sftp._requests[reqID];
-      return doFatalSFTPError(sftp, 'Malformed STATUS packet');
-    }
+    // Note: we avoid checking that the error message and language tag are in
+    // the packet because there are some broken implementations that incorrectly
+    // omit them. The language tag in general was never really used amongst ssh
+    // implementations, so in the case of a missing error message we just
+    // default to something sensible.
 
     if (sftp._debug) {
       const jsonMsg = JSON.stringify(errorMsg);
@@ -16794,6 +18597,44 @@ const CLIENT_HANDLERS = {
             bufferParser.clear();
             if (typeof req.cb === 'function')
               req.cb(undefined, limits);
+            return;
+          }
+          case 'users-groups-by-id@openssh.com': {
+            /*
+              string    usernames
+                string    username1
+                ...
+              string    groupnames
+                string    groupname1
+                ...
+            */
+            const usernameCount = bufferParser.readUInt32BE();
+            if (usernameCount === undefined)
+              break;
+            const usernames = new Array(usernameCount);
+            for (let i = 0; i < usernames.length; ++i)
+              usernames[i] = bufferParser.readString(true);
+
+            const groupnameCount = bufferParser.readUInt32BE();
+            if (groupnameCount === undefined)
+              break;
+            const groupnames = new Array(groupnameCount);
+            for (let i = 0; i < groupnames.length; ++i)
+              groupnames[i] = bufferParser.readString(true);
+            if (groupnames.length > 0
+                && groupnames[groupnames.length - 1] === undefined) {
+              break;
+            }
+
+            if (sftp._debug) {
+              sftp._debug(
+                'SFTP: Inbound: Received EXTENDED_REPLY '
+                  + `(id:${reqID}, ${req.extended})`
+              );
+            }
+            bufferParser.clear();
+            if (typeof req.cb === 'function')
+              req.cb(undefined, usernames, groupnames);
             return;
           }
           default:
@@ -17276,7 +19117,7 @@ const {
   ERR_INVALID_ARG_TYPE,
   ERR_OUT_OF_RANGE,
   validateNumber
-} = __nccwpck_require__(8984);
+} = __nccwpck_require__(3896);
 
 const kMinPoolSpace = 128;
 
@@ -17341,7 +19182,7 @@ function ReadStream(sftp, path, options) {
   this.autoClose = options.autoClose === undefined ? true : options.autoClose;
   this.pos = 0;
   this.bytesRead = 0;
-  this.closed = false;
+  this.isClosed = false;
 
   this.handle = options.handle === undefined ? null : options.handle;
   this.sftp = sftp;
@@ -17493,7 +19334,7 @@ function closeStream(stream, cb, err) {
   function onclose(er) {
     er = er || err;
     cb(er);
-    stream.closed = true;
+    stream.isClosed = true;
     if (!er)
       stream.emit('close');
   }
@@ -17536,7 +19377,7 @@ function WriteStream(sftp, path, options) {
   this.autoClose = options.autoClose === undefined ? true : options.autoClose;
   this.pos = 0;
   this.bytesWritten = 0;
-  this.closed = false;
+  this.isClosed = false;
 
   this.handle = options.handle === undefined ? null : options.handle;
   this.sftp = sftp;
@@ -17696,7 +19537,7 @@ if (typeof WritableStream.prototype.destroy !== 'function')
 WriteStream.prototype._destroy = ReadStream.prototype._destroy;
 WriteStream.prototype.close = function(cb) {
   if (cb) {
-    if (this.closed) {
+    if (this.isClosed) {
       process.nextTick(cb);
       return;
     }
@@ -17734,7 +19575,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9249:
+/***/ 5561:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17744,10 +19585,10 @@ const crypto = __nccwpck_require__(6113);
 
 let cpuInfo;
 try {
-  cpuInfo = __nccwpck_require__(7792)();
+  cpuInfo = __nccwpck_require__(1298)();
 } catch {}
 
-const { bindingAvailable } = __nccwpck_require__(8254);
+const { bindingAvailable, CIPHER_INFO, MAC_INFO } = __nccwpck_require__(2812);
 
 const eddsaSupported = (() => {
   if (typeof crypto.sign === 'function'
@@ -17816,7 +19657,11 @@ const SUPPORTED_SERVER_HOST_KEY = DEFAULT_SERVER_HOST_KEY.concat([
 ]);
 
 
-const DEFAULT_CIPHER = [
+const canUseCipher = (() => {
+  const ciphers = crypto.getCiphers();
+  return (name) => ciphers.includes(CIPHER_INFO[name].sslName);
+})();
+let DEFAULT_CIPHER = [
   // http://tools.ietf.org/html/rfc5647
   'aes128-gcm@openssh.com',
   'aes256-gcm@openssh.com',
@@ -17839,12 +19684,15 @@ if (cpuInfo && cpuInfo.flags && !cpuInfo.flags.aes) {
 } else {
   DEFAULT_CIPHER.push('chacha20-poly1305@openssh.com');
 }
+DEFAULT_CIPHER = DEFAULT_CIPHER.filter(canUseCipher);
 const SUPPORTED_CIPHER = DEFAULT_CIPHER.concat([
   'aes256-cbc',
   'aes192-cbc',
   'aes128-cbc',
   'blowfish-cbc',
   '3des-cbc',
+  'aes128-gcm',
+  'aes256-gcm',
 
   // http://tools.ietf.org/html/rfc4345#section-4:
   'arcfour256',
@@ -17852,9 +19700,13 @@ const SUPPORTED_CIPHER = DEFAULT_CIPHER.concat([
 
   'cast128-cbc',
   'arcfour',
-]);
+].filter(canUseCipher));
 
 
+const canUseMAC = (() => {
+  const hashes = crypto.getHashes();
+  return (name) => hashes.includes(MAC_INFO[name].sslName);
+})();
 const DEFAULT_MAC = [
   'hmac-sha2-256-etm@openssh.com',
   'hmac-sha2-512-etm@openssh.com',
@@ -17862,7 +19714,7 @@ const DEFAULT_MAC = [
   'hmac-sha2-256',
   'hmac-sha2-512',
   'hmac-sha1',
-];
+].filter(canUseMAC);
 const SUPPORTED_MAC = DEFAULT_MAC.concat([
   'hmac-md5',
   'hmac-sha2-256-96', // first 96 bits of HMAC-SHA256
@@ -17870,7 +19722,7 @@ const SUPPORTED_MAC = DEFAULT_MAC.concat([
   'hmac-ripemd160',
   'hmac-sha1-96',     // first 96 bits of HMAC-SHA1
   'hmac-md5-96',      // first 96 bits of HMAC-MD5
-]);
+].filter(canUseMAC));
 
 const DEFAULT_COMPRESSION = [
   'none',
@@ -17888,6 +19740,7 @@ const COMPAT = {
   OLD_EXIT: 1 << 1,
   DYN_RPORT_BUG: 1 << 2,
   BUG_DHGEX_LARGE: 1 << 3,
+  IMPLY_RSA_SHA2_SIGALGS: 1 << 4,
 };
 
 module.exports = {
@@ -17899,6 +19752,7 @@ module.exports = {
     DEBUG: 4,
     SERVICE_REQUEST: 5,
     SERVICE_ACCEPT: 6,
+    EXT_INFO: 7, // RFC 8308
 
     // Transport layer protocol -- algorithm negotiation (20-29)
     KEXINIT: 20,
@@ -18056,9 +19910,10 @@ module.exports = {
   COMPAT,
   COMPAT_CHECKS: [
     [ 'Cisco-1.25', COMPAT.BAD_DHGEX ],
-    [ /^Cisco-1\./, COMPAT.BUG_DHGEX_LARGE ],
+    [ /^Cisco-1[.]/, COMPAT.BUG_DHGEX_LARGE ],
     [ /^[0-9.]+$/, COMPAT.OLD_EXIT ], // old SSH.com implementations
-    [ /^OpenSSH_5\.\d+/, COMPAT.DYN_RPORT_BUG ],
+    [ /^OpenSSH_5[.][0-9]+/, COMPAT.DYN_RPORT_BUG ],
+    [ /^OpenSSH_7[.]4/, COMPAT.IMPLY_RSA_SHA2_SIGALGS ],
   ],
 
   // KEX proposal-related
@@ -18084,7 +19939,7 @@ module.exports.DISCONNECT_REASON_BY_VALUE =
 
 /***/ }),
 
-/***/ 8254:
+/***/ 2812:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18100,7 +19955,7 @@ const {
   createCipheriv, createDecipheriv, createHmac, randomFillSync, timingSafeEqual
 } = __nccwpck_require__(6113);
 
-const { readUInt32BE, writeUInt32BE } = __nccwpck_require__(5346);
+const { readUInt32BE, writeUInt32BE } = __nccwpck_require__(6100);
 
 const FastBuffer = Buffer[Symbol.species];
 const MAX_SEQNO = 2 ** 32 - 1;
@@ -18117,7 +19972,7 @@ let AESGCMDecipher;
 let ChaChaPolyDecipher;
 let GenericDecipher;
 try {
-  binding = __nccwpck_require__(124);
+  binding = __nccwpck_require__(260);
   ({ AESGCMCipher, ChaChaPolyCipher, GenericCipher,
      AESGCMDecipher, ChaChaPolyDecipher, GenericDecipher } = binding);
 } catch {}
@@ -19671,7 +21526,7 @@ module.exports = {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
-        POLY1305_WASM_MODULE = await __nccwpck_require__(4025)();
+        POLY1305_WASM_MODULE = await __nccwpck_require__(1822)();
         POLY1305_RESULT_MALLOC = POLY1305_WASM_MODULE._malloc(16);
         poly1305_auth = POLY1305_WASM_MODULE.cwrap(
           'poly1305_auth',
@@ -19694,7 +21549,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4025:
+/***/ 1822:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 
@@ -19741,7 +21596,7 @@ else {}
 
 /***/ }),
 
-/***/ 1955:
+/***/ 7853:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19749,8 +21604,8 @@ else {}
 
 const MESSAGE_HANDLERS = new Array(256);
 [
-  (__nccwpck_require__(7945).HANDLERS),
-  __nccwpck_require__(4348),
+  (__nccwpck_require__(8017).HANDLERS),
+  __nccwpck_require__(4793),
 ].forEach((handlers) => {
   // eslint-disable-next-line prefer-const
   for (let [type, handler] of Object.entries(handlers)) {
@@ -19765,7 +21620,7 @@ module.exports = MESSAGE_HANDLERS;
 
 /***/ }),
 
-/***/ 4348:
+/***/ 4793:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19777,18 +21632,18 @@ const {
   doFatalError,
   sigSSHToASN1,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 
 const {
   CHANNEL_OPEN_FAILURE,
   COMPAT,
   MESSAGE,
   TERMINAL_MODE,
-} = __nccwpck_require__(9249);
+} = __nccwpck_require__(5561);
 
 const {
   parseKey,
-} = __nccwpck_require__(9765);
+} = __nccwpck_require__(8374);
 
 const TERMINAL_MODE_BY_VALUE =
   Array.from(Object.entries(TERMINAL_MODE))
@@ -19917,6 +21772,48 @@ module.exports = {
     const handler = self._handlers.SERVICE_ACCEPT;
     handler && handler(self, name);
   },
+  [MESSAGE.EXT_INFO]: (self, payload) => {
+    /*
+      byte       SSH_MSG_EXT_INFO
+      uint32     nr-extensions
+      repeat the following 2 fields "nr-extensions" times:
+        string   extension-name
+        string   extension-value (binary)
+    */
+    bufferParser.init(payload, 1);
+    const numExts = bufferParser.readUInt32BE();
+    let exts;
+    if (numExts !== undefined) {
+      exts = [];
+      for (let i = 0; i < numExts; ++i) {
+        const name = bufferParser.readString(true);
+        const data = bufferParser.readString();
+        if (data !== undefined) {
+          switch (name) {
+            case 'server-sig-algs': {
+              const algs = data.latin1Slice(0, data.length).split(',');
+              exts.push({ name, algs });
+              continue;
+            }
+            default:
+              continue;
+          }
+        }
+        // Malformed
+        exts = undefined;
+        break;
+      }
+    }
+    bufferParser.clear();
+
+    if (exts === undefined)
+      return doFatalError(self, 'Inbound: Malformed EXT_INFO packet');
+
+    self._debug && self._debug('Inbound: Received EXT_INFO');
+
+    const handler = self._handlers.EXT_INFO;
+    handler && handler(self, exts);
+  },
 
   // User auth protocol -- generic =============================================
   [MESSAGE.USERAUTH_REQUEST]: (self, payload) => {
@@ -19966,7 +21863,21 @@ module.exports = {
         const hasSig = bufferParser.readBool();
         if (hasSig !== undefined) {
           const keyAlgo = bufferParser.readString(true);
+          let realKeyAlgo = keyAlgo;
           const key = bufferParser.readString();
+
+          let hashAlgo;
+          switch (keyAlgo) {
+            case 'rsa-sha2-256':
+              realKeyAlgo = 'ssh-rsa';
+              hashAlgo = 'sha256';
+              break;
+            case 'rsa-sha2-512':
+              realKeyAlgo = 'ssh-rsa';
+              hashAlgo = 'sha512';
+              break;
+          }
+
           if (hasSig) {
             const blobEnd = bufferParser.pos();
             let signature = bufferParser.readString();
@@ -19977,7 +21888,7 @@ module.exports = {
                 signature = bufferSlice(signature, 4 + keyAlgo.length + 4);
               }
 
-              signature = sigSSHToASN1(signature, keyAlgo);
+              signature = sigSSHToASN1(signature, realKeyAlgo);
               if (signature) {
                 const sessionID = self._kex.sessionID;
                 const blob = Buffer.allocUnsafe(4 + sessionID.length + blobEnd);
@@ -19988,15 +21899,16 @@ module.exports = {
                   4 + sessionID.length
                 );
                 methodData = {
-                  keyAlgo,
+                  keyAlgo: realKeyAlgo,
                   key,
                   signature,
                   blob,
+                  hashAlgo,
                 };
               }
             }
           } else {
-            methodData = { keyAlgo, key };
+            methodData = { keyAlgo: realKeyAlgo, key, hashAlgo };
             methodDesc = 'publickey -- check';
           }
         }
@@ -20012,9 +21924,22 @@ module.exports = {
           string    signature
         */
         const keyAlgo = bufferParser.readString(true);
+        let realKeyAlgo = keyAlgo;
         const key = bufferParser.readString();
         const localHostname = bufferParser.readString(true);
         const localUsername = bufferParser.readString(true);
+
+        let hashAlgo;
+        switch (keyAlgo) {
+          case 'rsa-sha2-256':
+            realKeyAlgo = 'ssh-rsa';
+            hashAlgo = 'sha256';
+            break;
+          case 'rsa-sha2-512':
+            realKeyAlgo = 'ssh-rsa';
+            hashAlgo = 'sha512';
+            break;
+        }
 
         const blobEnd = bufferParser.pos();
         let signature = bufferParser.readString();
@@ -20025,7 +21950,7 @@ module.exports = {
             signature = bufferSlice(signature, 4 + keyAlgo.length + 4);
           }
 
-          signature = sigSSHToASN1(signature, keyAlgo);
+          signature = sigSSHToASN1(signature, realKeyAlgo);
           if (signature !== undefined) {
             const sessionID = self._kex.sessionID;
             const blob = Buffer.allocUnsafe(4 + sessionID.length + blobEnd);
@@ -20036,12 +21961,13 @@ module.exports = {
               4 + sessionID.length
             );
             methodData = {
-              keyAlgo,
+              keyAlgo: realKeyAlgo,
               key,
               signature,
               blob,
               localHostname,
               localUsername,
+              hashAlgo
             };
           }
         }
@@ -20987,7 +22913,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7945:
+/***/ 8017:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -21004,7 +22930,7 @@ const {
   randomFillSync,
 } = __nccwpck_require__(6113);
 
-const { Ber } = __nccwpck_require__(7713);
+const { Ber } = __nccwpck_require__(831);
 
 const {
   COMPAT,
@@ -21016,14 +22942,14 @@ const {
   DEFAULT_COMPRESSION,
   DISCONNECT_REASON,
   MESSAGE,
-} = __nccwpck_require__(9249);
+} = __nccwpck_require__(5561);
 const {
   CIPHER_INFO,
   createCipher,
   createDecipher,
   MAC_INFO,
-} = __nccwpck_require__(8254);
-const { parseDERKey } = __nccwpck_require__(9765);
+} = __nccwpck_require__(2812);
+const { parseDERKey } = __nccwpck_require__(8374);
 const {
   bufferFill,
   bufferParser,
@@ -21032,13 +22958,13 @@ const {
   FastBuffer,
   sigSSHToASN1,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 const {
   PacketReader,
   PacketWriter,
   ZlibPacketReader,
   ZlibPacketWriter,
-} = __nccwpck_require__(2212);
+} = __nccwpck_require__(5673);
 
 let MESSAGE_HANDLERS;
 
@@ -21215,12 +23141,39 @@ function handleKexInit(self, payload) {
   // Key exchange method =======================================================
   debug && debug(`Handshake: (local) KEX method: ${localKex}`);
   debug && debug(`Handshake: (remote) KEX method: ${remote.kex}`);
+  let remoteExtInfoEnabled;
   if (self._server) {
     serverList = localKex;
     clientList = remote.kex;
+    remoteExtInfoEnabled = (clientList.indexOf('ext-info-c') !== -1);
   } else {
     serverList = remote.kex;
     clientList = localKex;
+    remoteExtInfoEnabled = (serverList.indexOf('ext-info-s') !== -1);
+  }
+  if (self._strictMode === undefined) {
+    if (self._server) {
+      self._strictMode =
+        (clientList.indexOf('kex-strict-c-v00@openssh.com') !== -1);
+    } else {
+      self._strictMode =
+        (serverList.indexOf('kex-strict-s-v00@openssh.com') !== -1);
+    }
+    // Note: We check for seqno of 1 instead of 0 since we increment before
+    //       calling the packet handler
+    if (self._strictMode) {
+      debug && debug('Handshake: strict KEX mode enabled');
+      if (self._decipher.inSeqno !== 1) {
+        if (debug)
+          debug('Handshake: KEXINIT not first packet in strict KEX mode');
+        return doFatalError(
+          self,
+          'Handshake failed: KEXINIT not first packet in strict KEX mode',
+          'handshake',
+          DISCONNECT_REASON.KEY_EXCHANGE_FAILED
+        );
+      }
+    }
   }
   // Check for agreeable key exchange algorithm
   for (i = 0;
@@ -21228,7 +23181,7 @@ function handleKexInit(self, payload) {
        ++i);
   if (i === clientList.length) {
     // No suitable match found!
-    debug && debug('Handshake: No matching key exchange algorithm');
+    debug && debug('Handshake: no matching key exchange algorithm');
     return doFatalError(
       self,
       'Handshake failed: no matching key exchange algorithm',
@@ -21472,6 +23425,7 @@ function handleKexInit(self, payload) {
   }
 
   self._kex = createKeyExchange(init, self, payload);
+  self._kex.remoteExtInfoEnabled = remoteExtInfoEnabled;
   self._kex.start();
 }
 
@@ -21503,6 +23457,7 @@ const createKeyExchange = (() => {
 
       this.sessionID = (protocol._kex ? protocol._kex.sessionID : undefined);
       this.negotiated = negotiated;
+      this.remoteExtInfoEnabled = false;
       this._step = 1;
       this._public = null;
       this._dh = null;
@@ -21520,7 +23475,7 @@ const createKeyExchange = (() => {
       this._dhData = undefined;
       this._sig = undefined;
     }
-    finish() {
+    finish(scOnly) {
       if (this._finished)
         return false;
       this._finished = true;
@@ -21771,9 +23726,26 @@ const createKeyExchange = (() => {
           this._protocol._packetRW.write.finalize(packet, true)
         );
       }
-      trySendNEWKEYS(this);
 
-      const completeHandshake = () => {
+      if (isServer || !scOnly)
+        trySendNEWKEYS(this);
+
+      let hsCipherConfig;
+      let hsWrite;
+      const completeHandshake = (partial) => {
+        if (hsCipherConfig) {
+          trySendNEWKEYS(this);
+          hsCipherConfig.outbound.seqno = this._protocol._cipher.outSeqno;
+          this._protocol._cipher.free();
+          this._protocol._cipher = createCipher(hsCipherConfig);
+          this._protocol._packetRW.write = hsWrite;
+          hsCipherConfig = undefined;
+          hsWrite = undefined;
+          this._protocol._onHandshakeComplete(negotiated);
+
+          return false;
+        }
+
         if (!this.sessionID)
           this.sessionID = exchangeHash;
 
@@ -21856,9 +23828,8 @@ const createKeyExchange = (() => {
             macKey: (isServer ? scMacKey : csMacKey),
           },
         };
-        this._protocol._cipher && this._protocol._cipher.free();
-        this._protocol._decipher && this._protocol._decipher.free();
-        this._protocol._cipher = createCipher(config);
+        this._protocol._decipher.free();
+        hsCipherConfig = config;
         this._protocol._decipher = createDecipher(config);
 
         const rw = {
@@ -21925,7 +23896,8 @@ const createKeyExchange = (() => {
         }
         this._protocol._packetRW.read.cleanup();
         this._protocol._packetRW.write.cleanup();
-        this._protocol._packetRW = rw;
+        this._protocol._packetRW.read = rw.read;
+        hsWrite = rw.write;
 
         // Cleanup/reset various state
         this._public = null;
@@ -21938,13 +23910,16 @@ const createKeyExchange = (() => {
         this._dhData = undefined;
         this._sig = undefined;
 
-        this._protocol._onHandshakeComplete(negotiated);
-
+        if (!partial)
+          return completeHandshake();
         return false;
       };
+
+      if (isServer || scOnly)
+        this.finish = completeHandshake;
+
       if (!isServer)
-        return completeHandshake();
-      this.finish = completeHandshake;
+        return completeHandshake(scOnly);
     }
 
     start() {
@@ -22204,13 +24179,11 @@ const createKeyExchange = (() => {
             'Inbound: NEWKEYS'
           );
           this._receivedNEWKEYS = true;
+          if (this._protocol._strictMode)
+            this._protocol._decipher.inSeqno = 0;
           ++this._step;
-          if (this._protocol._server || this._hostVerified)
-            return this.finish();
 
-          // Signal to current decipher that we need to change to a new decipher
-          // for the next packet
-          return false;
+          return this.finish(!this._protocol._server && !this._hostVerified);
         default:
           return doFatalError(
             this._protocol,
@@ -22371,7 +24344,7 @@ const createKeyExchange = (() => {
     parse(payload) {
       const type = payload[0];
       switch (this._step) {
-        case 1:
+        case 1: {
           if (this._protocol._server) {
             if (type !== MESSAGE.KEXDH_GEX_REQUEST) {
               return doFatalError(
@@ -22446,6 +24419,7 @@ const createKeyExchange = (() => {
 
           ++this._step;
           break;
+        }
         case 2:
           if (this._protocol._server) {
             if (type !== MESSAGE.KEXDH_GEX_INIT) {
@@ -22727,13 +24701,22 @@ function onKEXPayload(state, payload) {
   payload = this._packetRW.read.read(payload);
 
   const type = payload[0];
+
+  if (!this._strictMode) {
+    switch (type) {
+      case MESSAGE.IGNORE:
+      case MESSAGE.UNIMPLEMENTED:
+      case MESSAGE.DEBUG:
+        if (!MESSAGE_HANDLERS)
+          MESSAGE_HANDLERS = __nccwpck_require__(7853);
+        return MESSAGE_HANDLERS[type](this, payload);
+    }
+  }
+
   switch (type) {
     case MESSAGE.DISCONNECT:
-    case MESSAGE.IGNORE:
-    case MESSAGE.UNIMPLEMENTED:
-    case MESSAGE.DEBUG:
       if (!MESSAGE_HANDLERS)
-        MESSAGE_HANDLERS = __nccwpck_require__(1955);
+        MESSAGE_HANDLERS = __nccwpck_require__(7853);
       return MESSAGE_HANDLERS[type](this, payload);
     case MESSAGE.KEXINIT:
       if (!state.firstPacket) {
@@ -22747,6 +24730,8 @@ function onKEXPayload(state, payload) {
       state.firstPacket = false;
       return handleKexInit(this, payload);
     default:
+      // Ensure packet is either an algorithm negotiation or KEX
+      // algorithm-specific packet
       if (type < 20 || type > 49) {
         return doFatalError(
           this,
@@ -22795,6 +24780,8 @@ function trySendNEWKEYS(kex) {
       kex._protocol._packetRW.write.finalize(packet, true)
     );
     kex._sentNEWKEYS = true;
+    if (kex._protocol._strictMode)
+      kex._protocol._cipher.outSeqno = 0;
   }
 }
 
@@ -22802,8 +24789,24 @@ module.exports = {
   KexInit,
   kexinit,
   onKEXPayload,
-  DEFAULT_KEXINIT: new KexInit({
-    kex: DEFAULT_KEX,
+  DEFAULT_KEXINIT_CLIENT: new KexInit({
+    kex: DEFAULT_KEX.concat(['ext-info-c', 'kex-strict-c-v00@openssh.com']),
+    serverHostKey: DEFAULT_SERVER_HOST_KEY,
+    cs: {
+      cipher: DEFAULT_CIPHER,
+      mac: DEFAULT_MAC,
+      compress: DEFAULT_COMPRESSION,
+      lang: [],
+    },
+    sc: {
+      cipher: DEFAULT_CIPHER,
+      mac: DEFAULT_MAC,
+      compress: DEFAULT_COMPRESSION,
+      lang: [],
+    },
+  }),
+  DEFAULT_KEXINIT_SERVER: new KexInit({
+    kex: DEFAULT_KEX.concat(['kex-strict-s-v00@openssh.com']),
     serverHostKey: DEFAULT_SERVER_HOST_KEY,
     cs: {
       cipher: DEFAULT_CIPHER,
@@ -22826,7 +24829,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9765:
+/***/ 8374:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -22849,18 +24852,18 @@ const {
 } = __nccwpck_require__(6113);
 const supportedOpenSSLCiphers = getCiphers();
 
-const { Ber } = __nccwpck_require__(7713);
-const bcrypt_pbkdf = (__nccwpck_require__(6048).pbkdf);
+const { Ber } = __nccwpck_require__(831);
+const bcrypt_pbkdf = (__nccwpck_require__(2770).pbkdf);
 
-const { CIPHER_INFO } = __nccwpck_require__(8254);
-const { eddsaSupported, SUPPORTED_CIPHER } = __nccwpck_require__(9249);
+const { CIPHER_INFO } = __nccwpck_require__(2812);
+const { eddsaSupported, SUPPORTED_CIPHER } = __nccwpck_require__(5561);
 const {
   bufferSlice,
   makeBufferParser,
   readString,
   readUInt32BE,
   writeUInt32BE,
-} = __nccwpck_require__(5346);
+} = __nccwpck_require__(6100);
 
 const SYM_HASH_ALGO = Symbol('Hash Algorithm');
 const SYM_PRIV_PEM = Symbol('Private key PEM');
@@ -23344,7 +25347,7 @@ OpenSSH_Private.prototype = BaseKey;
       switch (kdfName) {
         case 'none':
           return new Error('Malformed OpenSSH private key');
-        case 'bcrypt':
+        case 'bcrypt': {
           /*
             string salt
             uint32 rounds
@@ -23366,6 +25369,7 @@ OpenSSH_Private.prototype = BaseKey;
           cipherKey = bufferSlice(gen, 0, encInfo.keyLen);
           cipherIV = bufferSlice(gen, encInfo.keyLen, gen.length);
           break;
+        }
       }
     } else if (kdfName !== 'none') {
       return new Error('Malformed OpenSSH private key');
@@ -23405,6 +25409,7 @@ OpenSSH_Private.prototype = BaseKey;
                                             cipherKey,
                                             cipherIV,
                                             options);
+          decipher.setAutoPadding(false);
           if (encInfo.authLen > 0) {
             if (data.length - data._pos < encInfo.authLen)
               return new Error('Malformed OpenSSH private key');
@@ -23427,6 +25432,8 @@ OpenSSH_Private.prototype = BaseKey;
     } else {
       ret = [];
     }
+    if (ret instanceof Error)
+      return ret;
     // This will need to change if/when OpenSSH ever starts storing multiple
     // keys in their key files
     return ret[0];
@@ -23762,7 +25769,7 @@ OpenSSH_Old_Private.prototype = BaseKey;
         }
         algo = 'sha1';
         break;
-      case 'EC':
+      case 'EC': {
         let ecSSLName;
         let ecPriv;
         let ecOID;
@@ -23811,6 +25818,7 @@ OpenSSH_Old_Private.prototype = BaseKey;
         pubPEM = genOpenSSLECDSAPub(ecOID, pubBlob);
         pubSSH = genOpenSSHECDSAPub(ecOID, pubBlob);
         break;
+      }
     }
 
     return new OpenSSH_Old_Private(type, '', privPEM, pubPEM, pubSSH, algo,
@@ -23886,9 +25894,7 @@ PPK_Private.prototype = BaseKey;
       if (cipherKey.length > encInfo.keyLen)
         cipherKey = bufferSlice(cipherKey, 0, encInfo.keyLen);
       try {
-        const decipher = createDecipheriv(encInfo.sslName,
-                                        cipherKey,
-                                        PPK_IV);
+        const decipher = createDecipheriv(encInfo.sslName, cipherKey, PPK_IV);
         decipher.setAutoPadding(false);
         privBlob = combineBuffers(decipher.update(privBlob),
                                   decipher.final());
@@ -24315,7 +26321,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8984:
+/***/ 3896:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24438,13 +26444,13 @@ exports.validateNumber = function validateNumber(value, name) {
 
 /***/ }),
 
-/***/ 5346:
+/***/ 6100:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Ber = (__nccwpck_require__(7713).Ber);
+const Ber = (__nccwpck_require__(831).Ber);
 
 let DISCONNECT_REASON;
 
@@ -24615,7 +26621,7 @@ module.exports = {
   doFatalError: (protocol, msg, level, reason) => {
     let err;
     if (DISCONNECT_REASON === undefined)
-      ({ DISCONNECT_REASON } = __nccwpck_require__(5346));
+      ({ DISCONNECT_REASON } = __nccwpck_require__(5561));
     if (msg instanceof Error) {
       // doFatalError(protocol, err[, reason])
       err = msg;
@@ -24802,7 +26808,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2212:
+/***/ 5673:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25065,7 +27071,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2421:
+/***/ 9763:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25094,13 +27100,13 @@ const {
   SUPPORTED_KEX,
   SUPPORTED_MAC,
   SUPPORTED_SERVER_HOST_KEY,
-} = __nccwpck_require__(9249);
-const { init: cryptoInit } = __nccwpck_require__(8254);
-const { KexInit } = __nccwpck_require__(7945);
-const { parseKey } = __nccwpck_require__(9765);
-const Protocol = __nccwpck_require__(3581);
-const { SFTP } = __nccwpck_require__(9190);
-const { writeUInt32BE } = __nccwpck_require__(5346);
+} = __nccwpck_require__(5561);
+const { init: cryptoInit } = __nccwpck_require__(2812);
+const { KexInit } = __nccwpck_require__(8017);
+const { parseKey } = __nccwpck_require__(8374);
+const Protocol = __nccwpck_require__(8276);
+const { SFTP } = __nccwpck_require__(1874);
+const { writeUInt32BE } = __nccwpck_require__(6100);
 
 const {
   Channel,
@@ -25108,7 +27114,7 @@ const {
   PACKET_SIZE,
   windowAdjust,
   WINDOW_THRESHOLD,
-} = __nccwpck_require__(8174);
+} = __nccwpck_require__(6888);
 
 const {
   ChannelManager,
@@ -25116,7 +27122,7 @@ const {
   isWritable,
   onChannelOpenFailure,
   onCHANNEL_CLOSE,
-} = __nccwpck_require__(4008);
+} = __nccwpck_require__(3213);
 
 const MAX_PENDING_AUTHS = 10;
 
@@ -25207,6 +27213,7 @@ class PKAuthContext extends AuthContext {
     super(protocol, username, service, method, cb);
 
     this.key = { algo: pkInfo.keyAlgo, data: pkInfo.key };
+    this.hashAlgo = pkInfo.hashAlgo;
     this.signature = pkInfo.signature;
     this.blob = pkInfo.blob;
   }
@@ -25226,6 +27233,7 @@ class HostbasedAuthContext extends AuthContext {
     super(protocol, username, service, method, cb);
 
     this.key = { algo: pkInfo.keyAlgo, data: pkInfo.key };
+    this.hashAlgo = pkInfo.hashAlgo;
     this.signature = pkInfo.signature;
     this.blob = pkInfo.blob;
     this.localHostname = pkInfo.localHostname;
@@ -25363,7 +27371,11 @@ class Server extends EventEmitter {
     }
 
     const algorithms = {
-      kex: generateAlgorithmList(cfgAlgos.kex, DEFAULT_KEX, SUPPORTED_KEX),
+      kex: generateAlgorithmList(
+        cfgAlgos.kex,
+        DEFAULT_KEX,
+        SUPPORTED_KEX
+      ).concat(['kex-strict-s-v00@openssh.com']),
       serverHostKey: hostKeyAlgoOrder,
       cs: {
         cipher: generateAlgorithmList(
@@ -26387,6 +28399,13 @@ class Client extends EventEmitter {
         this.once('rekey', cb);
     }
   }
+
+  setNoDelay(noDelay) {
+    if (this._sock && typeof this._sock.setNoDelay === 'function')
+      this._sock.setNoDelay(noDelay);
+
+    return this;
+  }
 }
 
 
@@ -26440,13 +28459,13 @@ module.exports.IncomingClient = Client;
 
 /***/ }),
 
-/***/ 4008:
+/***/ 3213:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { SFTP } = __nccwpck_require__(9190);
+const { SFTP } = __nccwpck_require__(1874);
 
 const MAX_CHANNEL = 2 ** 32 - 1;
 
@@ -26784,7 +28803,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3122:
+/***/ 3673:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26813,7 +28832,7 @@ module.exports = {
 
 /*<replacement>*/
 
-var Buffer = (__nccwpck_require__(311).Buffer);
+var Buffer = (__nccwpck_require__(2289).Buffer);
 /*</replacement>*/
 
 var isEncoding = Buffer.isEncoding || function (encoding) {
@@ -27087,15 +29106,15 @@ function simpleEnd(buf) {
 
 /***/ }),
 
-/***/ 3357:
+/***/ 8316:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(2096);
+module.exports = __nccwpck_require__(3250);
 
 
 /***/ }),
 
-/***/ 2096:
+/***/ 3250:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27367,7 +29386,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 7307:
+/***/ 6862:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 (function(nacl) {
@@ -29762,7 +31781,7 @@ nacl.setPRNG = function(fn) {
 
 /***/ }),
 
-/***/ 4042:
+/***/ 1900:
 /***/ ((__unused_webpack_module, exports) => {
 
 var undefined = (void 0); // Paranoia
@@ -30399,7 +32418,7 @@ function packF32(v) { return packIEEE754(v, 8, 23); }
 
 /***/ }),
 
-/***/ 8739:
+/***/ 293:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 
@@ -30412,11 +32431,663 @@ module.exports = __nccwpck_require__(3837).deprecate;
 
 /***/ }),
 
-/***/ 7792:
-/***/ ((module) => {
+/***/ 4477:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-module.exports = eval("require")("cpu-features");
+"use strict";
 
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+Object.defineProperty(exports, "v1", ({
+  enumerable: true,
+  get: function () {
+    return _v.default;
+  }
+}));
+Object.defineProperty(exports, "v3", ({
+  enumerable: true,
+  get: function () {
+    return _v2.default;
+  }
+}));
+Object.defineProperty(exports, "v4", ({
+  enumerable: true,
+  get: function () {
+    return _v3.default;
+  }
+}));
+Object.defineProperty(exports, "v5", ({
+  enumerable: true,
+  get: function () {
+    return _v4.default;
+  }
+}));
+Object.defineProperty(exports, "NIL", ({
+  enumerable: true,
+  get: function () {
+    return _nil.default;
+  }
+}));
+Object.defineProperty(exports, "version", ({
+  enumerable: true,
+  get: function () {
+    return _version.default;
+  }
+}));
+Object.defineProperty(exports, "validate", ({
+  enumerable: true,
+  get: function () {
+    return _validate.default;
+  }
+}));
+Object.defineProperty(exports, "stringify", ({
+  enumerable: true,
+  get: function () {
+    return _stringify.default;
+  }
+}));
+Object.defineProperty(exports, "parse", ({
+  enumerable: true,
+  get: function () {
+    return _parse.default;
+  }
+}));
+
+var _v = _interopRequireDefault(__nccwpck_require__(3073));
+
+var _v2 = _interopRequireDefault(__nccwpck_require__(9864));
+
+var _v3 = _interopRequireDefault(__nccwpck_require__(1854));
+
+var _v4 = _interopRequireDefault(__nccwpck_require__(401));
+
+var _nil = _interopRequireDefault(__nccwpck_require__(3415));
+
+var _version = _interopRequireDefault(__nccwpck_require__(2515));
+
+var _validate = _interopRequireDefault(__nccwpck_require__(7652));
+
+var _stringify = _interopRequireDefault(__nccwpck_require__(785));
+
+var _parse = _interopRequireDefault(__nccwpck_require__(437));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+
+/***/ 788:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function md5(bytes) {
+  if (Array.isArray(bytes)) {
+    bytes = Buffer.from(bytes);
+  } else if (typeof bytes === 'string') {
+    bytes = Buffer.from(bytes, 'utf8');
+  }
+
+  return _crypto.default.createHash('md5').update(bytes).digest();
+}
+
+var _default = md5;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 3415:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var _default = '00000000-0000-0000-0000-000000000000';
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 437:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _validate = _interopRequireDefault(__nccwpck_require__(7652));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function parse(uuid) {
+  if (!(0, _validate.default)(uuid)) {
+    throw TypeError('Invalid UUID');
+  }
+
+  let v;
+  const arr = new Uint8Array(16); // Parse ########-....-....-....-............
+
+  arr[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
+  arr[1] = v >>> 16 & 0xff;
+  arr[2] = v >>> 8 & 0xff;
+  arr[3] = v & 0xff; // Parse ........-####-....-....-............
+
+  arr[4] = (v = parseInt(uuid.slice(9, 13), 16)) >>> 8;
+  arr[5] = v & 0xff; // Parse ........-....-####-....-............
+
+  arr[6] = (v = parseInt(uuid.slice(14, 18), 16)) >>> 8;
+  arr[7] = v & 0xff; // Parse ........-....-....-####-............
+
+  arr[8] = (v = parseInt(uuid.slice(19, 23), 16)) >>> 8;
+  arr[9] = v & 0xff; // Parse ........-....-....-....-############
+  // (Use "/" to avoid 32-bit truncation when bit-shifting high-order bytes)
+
+  arr[10] = (v = parseInt(uuid.slice(24, 36), 16)) / 0x10000000000 & 0xff;
+  arr[11] = v / 0x100000000 & 0xff;
+  arr[12] = v >>> 24 & 0xff;
+  arr[13] = v >>> 16 & 0xff;
+  arr[14] = v >>> 8 & 0xff;
+  arr[15] = v & 0xff;
+  return arr;
+}
+
+var _default = parse;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 1510:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var _default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 9090:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = rng;
+
+var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const rnds8Pool = new Uint8Array(256); // # of random values to pre-allocate
+
+let poolPtr = rnds8Pool.length;
+
+function rng() {
+  if (poolPtr > rnds8Pool.length - 16) {
+    _crypto.default.randomFillSync(rnds8Pool);
+
+    poolPtr = 0;
+  }
+
+  return rnds8Pool.slice(poolPtr, poolPtr += 16);
+}
+
+/***/ }),
+
+/***/ 4025:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function sha1(bytes) {
+  if (Array.isArray(bytes)) {
+    bytes = Buffer.from(bytes);
+  } else if (typeof bytes === 'string') {
+    bytes = Buffer.from(bytes, 'utf8');
+  }
+
+  return _crypto.default.createHash('sha1').update(bytes).digest();
+}
+
+var _default = sha1;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 785:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _validate = _interopRequireDefault(__nccwpck_require__(7652));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+const byteToHex = [];
+
+for (let i = 0; i < 256; ++i) {
+  byteToHex.push((i + 0x100).toString(16).substr(1));
+}
+
+function stringify(arr, offset = 0) {
+  // Note: Be careful editing this code!  It's been tuned for performance
+  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
+  const uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
+  // of the following:
+  // - One or more input array values don't map to a hex octet (leading to
+  // "undefined" in the uuid)
+  // - Invalid input values for the RFC `version` or `variant` fields
+
+  if (!(0, _validate.default)(uuid)) {
+    throw TypeError('Stringified UUID is invalid');
+  }
+
+  return uuid;
+}
+
+var _default = stringify;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 3073:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _rng = _interopRequireDefault(__nccwpck_require__(9090));
+
+var _stringify = _interopRequireDefault(__nccwpck_require__(785));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+let _nodeId;
+
+let _clockseq; // Previous uuid creation time
+
+
+let _lastMSecs = 0;
+let _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+
+function v1(options, buf, offset) {
+  let i = buf && offset || 0;
+  const b = buf || new Array(16);
+  options = options || {};
+  let node = options.node || _nodeId;
+  let clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+
+  if (node == null || clockseq == null) {
+    const seedBytes = options.random || (options.rng || _rng.default)();
+
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
+    }
+
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  } // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+
+
+  let msecs = options.msecs !== undefined ? options.msecs : Date.now(); // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+
+  let nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
+
+  const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
+
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+
+
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  } // Per 4.2.1.2 Throw error if too many uuids are requested
+
+
+  if (nsecs >= 10000) {
+    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq; // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+
+  msecs += 12219292800000; // `time_low`
+
+  const tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff; // `time_mid`
+
+  const tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff; // `time_high_and_version`
+
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+
+  b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+
+  b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
+
+  b[i++] = clockseq & 0xff; // `node`
+
+  for (let n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf || (0, _stringify.default)(b);
+}
+
+var _default = v1;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 9864:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _v = _interopRequireDefault(__nccwpck_require__(3014));
+
+var _md = _interopRequireDefault(__nccwpck_require__(788));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v3 = (0, _v.default)('v3', 0x30, _md.default);
+var _default = v3;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 3014:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = _default;
+exports.URL = exports.DNS = void 0;
+
+var _stringify = _interopRequireDefault(__nccwpck_require__(785));
+
+var _parse = _interopRequireDefault(__nccwpck_require__(437));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str)); // UTF8 escape
+
+  const bytes = [];
+
+  for (let i = 0; i < str.length; ++i) {
+    bytes.push(str.charCodeAt(i));
+  }
+
+  return bytes;
+}
+
+const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+exports.DNS = DNS;
+const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+exports.URL = URL;
+
+function _default(name, version, hashfunc) {
+  function generateUUID(value, namespace, buf, offset) {
+    if (typeof value === 'string') {
+      value = stringToBytes(value);
+    }
+
+    if (typeof namespace === 'string') {
+      namespace = (0, _parse.default)(namespace);
+    }
+
+    if (namespace.length !== 16) {
+      throw TypeError('Namespace must be array-like (16 iterable integer values, 0-255)');
+    } // Compute hash of namespace and value, Per 4.3
+    // Future: Use spread syntax when supported on all platforms, e.g. `bytes =
+    // hashfunc([...namespace, ... value])`
+
+
+    let bytes = new Uint8Array(16 + value.length);
+    bytes.set(namespace);
+    bytes.set(value, namespace.length);
+    bytes = hashfunc(bytes);
+    bytes[6] = bytes[6] & 0x0f | version;
+    bytes[8] = bytes[8] & 0x3f | 0x80;
+
+    if (buf) {
+      offset = offset || 0;
+
+      for (let i = 0; i < 16; ++i) {
+        buf[offset + i] = bytes[i];
+      }
+
+      return buf;
+    }
+
+    return (0, _stringify.default)(bytes);
+  } // Function#name is not settable on some platforms (#270)
+
+
+  try {
+    generateUUID.name = name; // eslint-disable-next-line no-empty
+  } catch (err) {} // For CommonJS default export support
+
+
+  generateUUID.DNS = DNS;
+  generateUUID.URL = URL;
+  return generateUUID;
+}
+
+/***/ }),
+
+/***/ 1854:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _rng = _interopRequireDefault(__nccwpck_require__(9090));
+
+var _stringify = _interopRequireDefault(__nccwpck_require__(785));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function v4(options, buf, offset) {
+  options = options || {};
+
+  const rnds = options.random || (options.rng || _rng.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+
+
+  rnds[6] = rnds[6] & 0x0f | 0x40;
+  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
+
+  if (buf) {
+    offset = offset || 0;
+
+    for (let i = 0; i < 16; ++i) {
+      buf[offset + i] = rnds[i];
+    }
+
+    return buf;
+  }
+
+  return (0, _stringify.default)(rnds);
+}
+
+var _default = v4;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 401:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _v = _interopRequireDefault(__nccwpck_require__(3014));
+
+var _sha = _interopRequireDefault(__nccwpck_require__(4025));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const v5 = (0, _v.default)('v5', 0x50, _sha.default);
+var _default = v5;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 7652:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _regex = _interopRequireDefault(__nccwpck_require__(1510));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function validate(uuid) {
+  return typeof uuid === 'string' && _regex.default.test(uuid);
+}
+
+var _default = validate;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 2515:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+
+var _validate = _interopRequireDefault(__nccwpck_require__(7652));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function version(uuid) {
+  if (!(0, _validate.default)(uuid)) {
+    throw TypeError('Invalid UUID');
+  }
+
+  return parseInt(uuid.substr(14, 1), 16);
+}
+
+var _default = version;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ 4570:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = require(__nccwpck_require__.ab + "build/Release/cpufeatures.node")
+
+/***/ }),
+
+/***/ 260:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = require(__nccwpck_require__.ab + "lib/protocol/crypto/build/Release/sshcrypto.node")
 
 /***/ }),
 
@@ -30500,6 +33171,22 @@ module.exports = require("net");
 
 /***/ }),
 
+/***/ 7561:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs");
+
+/***/ }),
+
+/***/ 9411:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:path");
+
+/***/ }),
+
 /***/ 2037:
 /***/ ((module) => {
 
@@ -30552,7 +33239,7 @@ module.exports = require("zlib");
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"i8":"1.5.0"};
+module.exports = {"i8":"1.15.0"};
 
 /***/ })
 
@@ -30597,11 +33284,11 @@ module.exports = {"i8":"1.5.0"};
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core = __nccwpck_require__(8864);
+const core = __nccwpck_require__(8020);
 const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 
-let Client = __nccwpck_require__(7479);
+let Client = __nccwpck_require__(8352);
 let sftp = new Client();
 
 const host = core.getInput('host');
