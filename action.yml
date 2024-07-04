@@ -1,4 +1,4 @@
-name: 'SFTP Upload'
+name: 'SFTP Remote'
 description: 'Upload files or directories via sftp and ssh'
 author: 'Section Pte Ltd'
 branding:
