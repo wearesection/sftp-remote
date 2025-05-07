@@ -15,6 +15,6 @@
     "ssh2-sftp-client": "^11.0.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.2"
+    "@vercel/ncc": "^0.38.3"
   }
 }
