@@ -17,8 +17,8 @@ inputs:
     description: 'Username to login'
     required: true
     default: 'root'
-  password: 
-    description: 'Passwort to login'
+  password:
+    description: 'Password to login'
     required: true
     default: 'password'
   additionalPaths:
