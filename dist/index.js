@@ -33302,7 +33302,7 @@ const passphrase = core.getInput('passphrase');
 var privateKey = core.getInput('privateKey');
 
 core.setSecret(password);
-if (passphrase != undefined) {
+if (typeof passphrase == 'string' && passphrase.length > 0) {
     core.setSecret(passphrase);
 }
 

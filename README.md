@@ -59,3 +59,5 @@ jobs:
         localPath: './dist/index.js'
         remotePath: './'
 ```
+
+![Alt](https://repobeats.axiom.co/api/embed/e320e58b935a223f36b9e7c5da1f9ff91bd817ed.svg "Repobeats analytics image")
