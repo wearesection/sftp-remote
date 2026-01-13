@@ -99,10 +99,10 @@ jobs:
           host: ${{ secrets.SFTP_HOST }}
           port: 22
           username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASSWORD }}
           privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
           localPath: './build'
           remotePath: '/var/www/app/'
+          # password: ${{ secrets.SFTP_PASSWORD }}  # Optional: only if you want to allow password fallback
 ```
 
 ### Upload Multiple Files
