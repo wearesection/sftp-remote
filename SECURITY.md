@@ -20,7 +20,7 @@ The SFTP Action team and community take security bugs seriously. We appreciate y
 Instead, please report them via one of the following methods:
 
 1. **GitHub Security Advisories** (Preferred)
-   - Go to the [Security tab](https://github.com/wearesection/sftp-action/security) of this repository
+   - Go to the [Security tab](https://github.com/wearesection/sftp-remote/security) of this repository
    - Click "Report a vulnerability"
    - Fill out the form with details about the vulnerability
 

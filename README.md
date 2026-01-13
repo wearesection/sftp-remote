@@ -1,6 +1,6 @@
 # SFTP Remote Upload Action
 
-[![GitHub release](https://img.shields.io/github/v/release/wearesection/sftp-action)](https://github.com/wearesection/sftp-action/releases)
+[![GitHub release](https://img.shields.io/github/v/release/wearesection/sftp-remote)](https://github.com/wearesection/sftp-remote/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-SFTP%20Remote-blue)](https://github.com/marketplace/actions/sftp-remote)
 
