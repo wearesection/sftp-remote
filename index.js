@@ -1,8 +1,8 @@
-const core = require('@actions/core');
-const fs = require('fs');
-const path = require('path');
+import * as core from '@actions/core';
+import fs from 'fs';
+import path from 'path';
 
-let Client = require('ssh2-sftp-client');
+import Client from 'ssh2-sftp-client';
 let sftp = new Client();
 
 const host = core.getInput('host');
